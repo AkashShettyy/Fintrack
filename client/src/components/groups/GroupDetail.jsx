@@ -341,6 +341,7 @@ const GroupDetail = ({ group, onBack }) => {
                       <p className="text-indigo-400 font-bold mt-1 mb-3">
                         ₹{s.amount}
                       </p>
+
                       <div className="flex gap-2">
                         {s.upiId && (
                           <a
@@ -351,9 +352,7 @@ const GroupDetail = ({ group, onBack }) => {
                           </a>
                         )}
                         <button
-                          onClick={() =>
-                            handleMarkSettled(s.from, s.to, s.amount)
-                          }
+                          onClick={() => handleMarkSettled(s.from, s.to, s.amount)}
                           className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-xs transition"
                         >
                           Mark Settled ✅
