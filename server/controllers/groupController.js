@@ -163,11 +163,22 @@ const getSettlements = async (req, res) => {
     const settlements = calculateSettlements(group.expenses, group.members);
 
     // Replace IDs with user details
-    const enriched = settlements.map((s) => ({
-      from: group.members.find((m) => m._id.toString() === s.from),
-      to: group.members.find((m) => m._id.toString() === s.to),
-      amount: s.amount,
-    }));
+    const enriched = settlements.map((s) => {
+      const fromUser = group.members.find(
+        (m) => m._id.toString() === s.from.toString(),
+      );
+      const toUser = group.members.find(
+        (m) => m._id.toString() === s.to.toString(),
+      );
+
+      return {
+        from: fromUser
+          ? { name: fromUser.name, email: fromUser.email }
+          : s.from,
+        to: toUser ? { name: toUser.name, email: toUser.email } : s.to,
+        amount: s.amount,
+      };
+    });
 
     res.json(enriched);
   } catch (error) {
