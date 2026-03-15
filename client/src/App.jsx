@@ -7,6 +7,7 @@ import {
 import { Toaster } from "react-hot-toast";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -21,9 +22,7 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <div className="flex items-center justify-center h-screen bg-gray-900">
-                <h1 className="text-4xl font-bold text-white">Dashboard 🚀</h1>
-              </div>
+              <Dashboard />
             </ProtectedRoute>
           }
         />
