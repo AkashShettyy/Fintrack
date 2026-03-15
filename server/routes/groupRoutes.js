@@ -8,6 +8,7 @@ const {
   addExpense,
   deleteExpense,
   getSettlements,
+  markSettled,
 } = require("../controllers/groupController");
 const { protect } = require("../middleware/authMiddleware");
 
@@ -18,5 +19,6 @@ router.route("/:id").get(getGroup).delete(deleteGroup);
 router.route("/:id/expenses").post(addExpense);
 router.route("/:id/expenses/:eid").delete(deleteExpense);
 router.route("/:id/settlements").get(getSettlements);
+router.route("/:id/settlements/settle").put(markSettled);
 
 module.exports = router;

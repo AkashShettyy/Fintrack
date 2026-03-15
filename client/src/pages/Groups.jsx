@@ -9,7 +9,8 @@ const Groups = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
-  const [form, setForm] = useState({ name: "", description: "", members: "" });
+  const [form, setForm] = useState({ name: "", description: "" });
+  const [memberInputs, setMemberInputs] = useState([{ name: "", upiId: "" }]);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -27,14 +28,27 @@ const Groups = () => {
     }
   };
 
+  const addMemberRow = () => {
+    setMemberInputs([...memberInputs, { name: "", upiId: "" }]);
+  };
+
+  const removeMemberRow = (index) => {
+    setMemberInputs(memberInputs.filter((_, i) => i !== index));
+  };
+
+  const updateMember = (index, field, value) => {
+    const updated = [...memberInputs];
+    updated[index][field] = value;
+    setMemberInputs(updated);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const members = form.members
-        .split(",")
-        .map((m) => m.trim())
-        .filter((m) => m);
+      const members = memberInputs
+        .filter((m) => m.name.trim())
+        .map((m) => ({ name: m.name.trim(), upiId: m.upiId.trim() }));
 
       await api.post("/groups", {
         name: form.name,
@@ -43,7 +57,8 @@ const Groups = () => {
       });
 
       toast.success("Group created! 🎉");
-      setForm({ name: "", description: "", members: "" });
+      setForm({ name: "", description: "" });
+      setMemberInputs([{ name: "", upiId: "" }]);
       setShowForm(false);
       fetchGroups();
     } catch (error) {
@@ -136,23 +151,51 @@ const Groups = () => {
                 />
               </div>
 
+              {/* Members */}
               <div>
-                <label className="text-gray-400 text-sm mb-1 block">
+                <label className="text-gray-400 text-sm mb-2 block">
                   Members
-                  <span className="text-gray-500 ml-1">
-                    (comma separated names)
-                  </span>
                 </label>
-                <input
-                  type="text"
-                  value={form.members}
-                  onChange={(e) =>
-                    setForm({ ...form, members: e.target.value })
-                  }
-                  placeholder="Akash, Raj, Priya"
-                  required
-                  className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
+                <div className="space-y-2">
+                  {memberInputs.map((member, index) => (
+                    <div key={index} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={member.name}
+                        onChange={(e) =>
+                          updateMember(index, "name", e.target.value)
+                        }
+                        placeholder="Name (eg: Akash)"
+                        className="flex-1 bg-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                      <input
+                        type="text"
+                        value={member.upiId}
+                        onChange={(e) =>
+                          updateMember(index, "upiId", e.target.value)
+                        }
+                        placeholder="UPI ID (optional)"
+                        className="flex-1 bg-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                      {memberInputs.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeMemberRow(index)}
+                          className="text-red-400 hover:text-red-300 px-3"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addMemberRow}
+                    className="text-indigo-400 hover:text-indigo-300 text-sm mt-1"
+                  >
+                    + Add Member
+                  </button>
+                </div>
               </div>
 
               <button

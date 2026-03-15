@@ -1,4 +1,4 @@
-const calculateSettlements = (expenses, members) => {
+const calculateSettlements = (expenses, members, payments = []) => {
   const balances = {};
 
   // Init balances for all members
@@ -6,7 +6,7 @@ const calculateSettlements = (expenses, members) => {
     balances[member.name] = 0;
   });
 
-  // Calculate balances
+  // Calculate balances from expenses
   expenses.forEach((expense) => {
     const paidBy = expense.paidBy;
     const splitBetween = expense.splitBetween;
@@ -17,6 +17,12 @@ const calculateSettlements = (expenses, members) => {
     splitBetween.forEach((memberName) => {
       balances[memberName] = (balances[memberName] || 0) - shareAmount;
     });
+  });
+
+  // Subtract already paid amounts
+  payments.forEach((payment) => {
+    balances[payment.from] = (balances[payment.from] || 0) + payment.amount;
+    balances[payment.to] = (balances[payment.to] || 0) - payment.amount;
   });
 
   const creditors = [];

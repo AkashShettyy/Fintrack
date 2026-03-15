@@ -6,8 +6,14 @@ const createGroup = async (req, res) => {
   try {
     const { name, description, members } = req.body;
 
-    // members is an array of names ["Akash", "Raj", "Priya"]
-    const memberList = members.map((m) => ({ name: m }));
+    const memberList = Array.isArray(members)
+      ? members
+          .filter((member) => member?.name?.trim())
+          .map((member) => ({
+            name: member.name.trim(),
+            upiId: member.upiId?.trim() || "",
+          }))
+      : [];
 
     const group = await Group.create({
       name,
@@ -121,6 +127,7 @@ const deleteExpense = async (req, res) => {
 };
 
 // @route  GET /api/groups/:id/settlements
+// @route  GET /api/groups/:id/settlements
 const getSettlements = async (req, res) => {
   try {
     const group = await Group.findById(req.params.id);
@@ -129,8 +136,43 @@ const getSettlements = async (req, res) => {
       return res.status(404).json({ message: "Group not found" });
     }
 
-    const settlements = calculateSettlements(group.expenses, group.members);
-    res.json(settlements);
+    // Calculate settlements considering already paid amounts
+    const calculated = calculateSettlements(
+      group.expenses,
+      group.members,
+      group.payments,
+    );
+
+    // Attach UPI ID of the "to" member
+    const enriched = calculated.map((s) => {
+      const toMember = group.members.find((m) => m.name === s.to);
+      return {
+        ...s,
+        upiId: toMember?.upiId || "",
+      };
+    });
+
+    res.json(enriched);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @route  PUT /api/groups/:id/settlements/settle
+const markSettled = async (req, res) => {
+  try {
+    const { from, to, amount } = req.body;
+    const group = await Group.findById(req.params.id);
+
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    // Record the payment
+    group.payments.push({ from, to, amount });
+    await group.save();
+
+    res.json({ message: "Payment recorded successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -144,4 +186,5 @@ module.exports = {
   addExpense,
   deleteExpense,
   getSettlements,
+  markSettled,
 };

@@ -2,27 +2,29 @@ const mongoose = require("mongoose");
 
 const expenseSchema = new mongoose.Schema(
   {
-    description: {
-      type: String,
-      required: [true, "Description is required"],
-      trim: true,
-    },
-    amount: {
-      type: Number,
-      required: [true, "Amount is required"],
-    },
-    paidBy: {
-      type: String,
-      required: true,
-    },
-    splitBetween: [
-      {
-        type: String,
-      },
-    ],
+    description: { type: String, required: true, trim: true },
+    amount: { type: Number, required: true },
+    paidBy: { type: String, required: true },
+    splitBetween: [{ type: String }],
   },
   { timestamps: true },
 );
+
+const paymentSchema = new mongoose.Schema(
+  {
+    from: { type: String, required: true },
+    to: { type: String, required: true },
+    amount: { type: Number, required: true },
+  },
+  { timestamps: true },
+);
+
+const settlementSchema = new mongoose.Schema({
+  from: { type: String },
+  to: { type: String },
+  amount: { type: Number },
+  settled: { type: Boolean, default: false },
+});
 
 const groupSchema = new mongoose.Schema(
   {
@@ -31,25 +33,17 @@ const groupSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    name: {
-      type: String,
-      required: [true, "Group name is required"],
-      trim: true,
-    },
-    description: {
-      type: String,
-      default: "",
-    },
+    name: { type: String, required: true, trim: true },
+    description: { type: String, default: "" },
     members: [
       {
-        name: {
-          type: String,
-          required: true,
-          trim: true,
-        },
+        name: { type: String, required: true, trim: true },
+        upiId: { type: String, default: "", trim: true },
       },
     ],
     expenses: [expenseSchema],
+    payments: [paymentSchema],
+    settlements: [settlementSchema],
   },
   { timestamps: true },
 );
