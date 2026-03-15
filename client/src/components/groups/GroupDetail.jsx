@@ -2,10 +2,8 @@ import { useState, useEffect } from "react";
 import Navbar from "../layout/Navbar";
 import api from "../../utils/api";
 import toast from "react-hot-toast";
-import { useAuth } from "../../context/AuthContext";
 
 const GroupDetail = ({ group, onBack }) => {
-  const { user } = useAuth();
   const [detail, setDetail] = useState(null);
   const [settlements, setSettlements] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -13,8 +11,8 @@ const GroupDetail = ({ group, onBack }) => {
   const [form, setForm] = useState({
     description: "",
     amount: "",
-    paidByEmail: user?.email,
-    splitBetweenEmails: "",
+    paidBy: "",
+    splitBetween: "",
   });
 
   useEffect(() => {
@@ -44,25 +42,20 @@ const GroupDetail = ({ group, onBack }) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const splitBetweenEmails = form.splitBetweenEmails
+      const splitBetween = form.splitBetween
         .split(",")
-        .map((e) => e.trim())
-        .filter((e) => e);
+        .map((m) => m.trim())
+        .filter((m) => m);
 
       await api.post(`/groups/${group._id}/expenses`, {
         description: form.description,
         amount: Number(form.amount),
-        paidByEmail: form.paidByEmail,
-        splitBetweenEmails,
+        paidBy: form.paidBy,
+        splitBetween,
       });
 
       toast.success("Expense added! 💸");
-      setForm({
-        description: "",
-        amount: "",
-        paidByEmail: user?.email,
-        splitBetweenEmails: "",
-      });
+      setForm({ description: "", amount: "", paidBy: "", splitBetween: "" });
       setShowForm(false);
       fetchDetail();
       fetchSettlements();
@@ -106,13 +99,17 @@ const GroupDetail = ({ group, onBack }) => {
           >
             ← Back
           </button>
-          <h1 className="text-3xl font-bold text-white">{detail.name}</h1>
+          <div>
+            <h1 className="text-3xl font-bold text-white">{detail.name}</h1>
+            {detail.description && (
+              <p className="text-gray-400 text-sm mt-1">{detail.description}</p>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left — Expenses */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Add Expense */}
             <div className="bg-gray-800 rounded-2xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-white font-semibold text-lg">Expenses</h2>
@@ -160,37 +157,62 @@ const GroupDetail = ({ group, onBack }) => {
 
                   <div>
                     <label className="text-gray-400 text-sm mb-1 block">
-                      Paid By (Email)
+                      Paid By
                     </label>
-                    <input
-                      type="email"
-                      value={form.paidByEmail}
+                    <select
+                      value={form.paidBy}
                       onChange={(e) =>
-                        setForm({ ...form, paidByEmail: e.target.value })
+                        setForm({ ...form, paidBy: e.target.value })
                       }
-                      placeholder="akash@gmail.com"
                       required
                       className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
+                    >
+                      <option value="">Select member</option>
+                      {detail.members.map((m) => (
+                        <option key={m._id} value={m.name}>
+                          {m.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div>
                     <label className="text-gray-400 text-sm mb-1 block">
                       Split Between
-                      <span className="text-gray-500 ml-1">
-                        (comma separated emails)
-                      </span>
                     </label>
-                    <input
-                      type="text"
-                      value={form.splitBetweenEmails}
-                      onChange={(e) =>
-                        setForm({ ...form, splitBetweenEmails: e.target.value })
-                      }
-                      placeholder="akash@gmail.com, raj@gmail.com"
-                      required
-                      className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      {detail.members.map((m) => (
+                        <label
+                          key={m._id}
+                          className="flex items-center gap-2 bg-gray-700 px-3 py-2 rounded-lg cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            value={m.name}
+                            checked={form.splitBetween.includes(m.name)}
+                            onChange={(e) => {
+                              const checked = e.target.checked;
+                              const name = e.target.value;
+                              const current = form.splitBetween
+                                ? form.splitBetween
+                                    .split(",")
+                                    .map((x) => x.trim())
+                                    .filter((x) => x)
+                                : [];
+                              const updated = checked
+                                ? [...current, name]
+                                : current.filter((x) => x !== name);
+                              setForm({
+                                ...form,
+                                splitBetween: updated.join(", "),
+                              });
+                            }}
+                            className="accent-indigo-500"
+                          />
+                          <span className="text-white text-sm">{m.name}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
 
                   <button
@@ -216,8 +238,8 @@ const GroupDetail = ({ group, onBack }) => {
                           {expense.description}
                         </p>
                         <p className="text-gray-400 text-xs">
-                          Paid by {expense.paidBy?.name} • Split{" "}
-                          {expense.splitBetween?.length} ways
+                          Paid by {expense.paidBy} • Split{" "}
+                          {expense.splitBetween.length} ways
                         </p>
                       </div>
                       <div className="flex items-center gap-3">
@@ -258,12 +280,9 @@ const GroupDetail = ({ group, onBack }) => {
                     <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
                       {member.name[0].toUpperCase()}
                     </div>
-                    <div>
-                      <p className="text-white text-sm font-medium">
-                        {member.name}
-                      </p>
-                      <p className="text-gray-400 text-xs">{member.email}</p>
-                    </div>
+                    <p className="text-white text-sm font-medium">
+                      {member.name}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -280,11 +299,11 @@ const GroupDetail = ({ group, onBack }) => {
                     <div key={i} className="bg-gray-700 px-4 py-3 rounded-lg">
                       <p className="text-white text-sm">
                         <span className="text-red-400 font-medium">
-                          {s.from?.name}
+                          {s.from}
                         </span>
                         {" owes "}
                         <span className="text-green-400 font-medium">
-                          {s.to?.name}
+                          {s.to}
                         </span>
                       </p>
                       <p className="text-indigo-400 font-bold mt-1">

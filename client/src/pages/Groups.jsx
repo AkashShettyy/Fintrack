@@ -9,11 +9,7 @@ const Groups = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    memberEmails: "",
-  });
+  const [form, setForm] = useState({ name: "", description: "", members: "" });
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -35,19 +31,19 @@ const Groups = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const memberEmails = form.memberEmails
+      const members = form.members
         .split(",")
-        .map((e) => e.trim())
-        .filter((e) => e);
+        .map((m) => m.trim())
+        .filter((m) => m);
 
       await api.post("/groups", {
         name: form.name,
         description: form.description,
-        memberEmails,
+        members,
       });
 
       toast.success("Group created! 🎉");
-      setForm({ name: "", description: "", memberEmails: "" });
+      setForm({ name: "", description: "", members: "" });
       setShowForm(false);
       fetchGroups();
     } catch (error) {
@@ -76,7 +72,6 @@ const Groups = () => {
     );
   }
 
-  // Show group detail view
   if (selectedGroup) {
     return (
       <GroupDetail
@@ -143,16 +138,19 @@ const Groups = () => {
 
               <div>
                 <label className="text-gray-400 text-sm mb-1 block">
-                  Member Emails
-                  <span className="text-gray-500 ml-1">(comma separated)</span>
+                  Members
+                  <span className="text-gray-500 ml-1">
+                    (comma separated names)
+                  </span>
                 </label>
                 <input
                   type="text"
-                  value={form.memberEmails}
+                  value={form.members}
                   onChange={(e) =>
-                    setForm({ ...form, memberEmails: e.target.value })
+                    setForm({ ...form, members: e.target.value })
                   }
-                  placeholder="raj@gmail.com, priya@gmail.com"
+                  placeholder="Akash, Raj, Priya"
+                  required
                   className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
@@ -181,16 +179,15 @@ const Groups = () => {
                     {group.description}
                   </p>
                 )}
-
                 <div className="space-y-1 mb-4">
                   <p className="text-gray-400 text-sm">
-                    👥 {group.members.length} members
+                    👥 {group.members.length} members —{" "}
+                    {group.members.map((m) => m.name).join(", ")}
                   </p>
                   <p className="text-gray-400 text-sm">
                     💸 {group.expenses.length} expenses
                   </p>
                 </div>
-
                 <div className="flex gap-2">
                   <button
                     onClick={() => setSelectedGroup(group)}

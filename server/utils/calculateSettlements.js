@@ -1,34 +1,30 @@
 const calculateSettlements = (expenses, members) => {
   const balances = {};
 
+  // Init balances for all members
   members.forEach((member) => {
-    balances[member._id.toString()] = 0;
+    balances[member.name] = 0;
   });
 
+  // Calculate balances
   expenses.forEach((expense) => {
-    const paidBy = expense.paidBy._id
-      ? expense.paidBy._id.toString()
-      : expense.paidBy.toString();
-
-    const splitBetween = expense.splitBetween.map((m) =>
-      m._id ? m._id.toString() : m.toString(),
-    );
-
+    const paidBy = expense.paidBy;
+    const splitBetween = expense.splitBetween;
     const shareAmount = expense.amount / splitBetween.length;
 
     balances[paidBy] = (balances[paidBy] || 0) + expense.amount;
 
-    splitBetween.forEach((memberId) => {
-      balances[memberId] = (balances[memberId] || 0) - shareAmount;
+    splitBetween.forEach((memberName) => {
+      balances[memberName] = (balances[memberName] || 0) - shareAmount;
     });
   });
 
   const creditors = [];
   const debtors = [];
 
-  Object.entries(balances).forEach(([memberId, balance]) => {
-    if (balance > 0.01) creditors.push({ memberId, amount: balance });
-    if (balance < -0.01) debtors.push({ memberId, amount: -balance });
+  Object.entries(balances).forEach(([name, balance]) => {
+    if (balance > 0.01) creditors.push({ name, amount: balance });
+    if (balance < -0.01) debtors.push({ name, amount: -balance });
   });
 
   const settlements = [];
@@ -41,8 +37,8 @@ const calculateSettlements = (expenses, members) => {
     const amount = Math.min(debtor.amount, creditor.amount);
 
     settlements.push({
-      from: debtor.memberId,
-      to: creditor.memberId,
+      from: debtor.name,
+      to: creditor.name,
       amount: Math.round(amount * 100) / 100,
     });
 

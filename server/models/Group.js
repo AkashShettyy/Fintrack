@@ -12,14 +12,12 @@ const expenseSchema = new mongoose.Schema(
       required: [true, "Amount is required"],
     },
     paidBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
       required: true,
     },
     splitBetween: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        type: String,
       },
     ],
   },
@@ -28,6 +26,11 @@ const expenseSchema = new mongoose.Schema(
 
 const groupSchema = new mongoose.Schema(
   {
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     name: {
       type: String,
       required: [true, "Group name is required"],
@@ -37,15 +40,13 @@ const groupSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
     members: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        name: {
+          type: String,
+          required: true,
+          trim: true,
+        },
       },
     ],
     expenses: [expenseSchema],
