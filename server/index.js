@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
+const authRoutes = require("./routes/authRoutes");
 
 // Load env variables
 dotenv.config();
@@ -19,6 +20,8 @@ app.use(
   }),
 );
 app.use(express.json());
+
+app.use("/api/auth", authRoutes);
 
 // Health check
 app.get("/", (req, res) => {
