@@ -91,12 +91,11 @@ const addExpense = async (req, res) => {
 
     const { description, amount, paidBy, splitBetween } = req.body;
 
-    group.expenses.push({
-      description,
-      amount,
-      paidBy,
-      splitBetween,
-    });
+    if (!Array.isArray(paidBy) || !paidBy.length) {
+      return res.status(400).json({ message: "At least one payer required" });
+    }
+
+    group.expenses.push({ description, amount, paidBy, splitBetween });
 
     await group.save();
     res.status(201).json(group);

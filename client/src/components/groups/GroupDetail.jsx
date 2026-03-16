@@ -6,7 +6,7 @@ import api from "../../utils/api";
 const initialForm = {
   description: "",
   amount: "",
-  paidBy: "",
+  paidBy: [],
   splitBetween: [],
 };
 
@@ -53,6 +53,11 @@ const GroupDetail = ({ group, onBack }) => {
     e.preventDefault();
     setSubmitting(true);
     try {
+      if (!form.paidBy.length || !form.splitBetween.length) {
+        toast.error("Select at least one payer and one member to split");
+        setSubmitting(false);
+        return;
+      }
       await api.post(`/groups/${group._id}/expenses`, {
         description: form.description.trim(),
         amount: Number(form.amount),
@@ -95,12 +100,17 @@ const GroupDetail = ({ group, onBack }) => {
     }
   };
 
-  const toggleSplitMember = (memberName, checked) => {
-    setForm((currentForm) => ({
-      ...currentForm,
-      splitBetween: checked
-        ? [...currentForm.splitBetween, memberName]
-        : currentForm.splitBetween.filter((name) => name !== memberName),
+  const toggleMember = (field, name, checked) => {
+    setForm((f) => ({
+      ...f,
+      [field]: checked ? [...f[field], name] : f[field].filter((n) => n !== name),
+    }));
+  };
+
+  const toggleAll = (field, allNames) => {
+    setForm((f) => ({
+      ...f,
+      [field]: f[field].length === allNames.length ? [] : allNames,
     }));
   };
 
@@ -189,56 +199,43 @@ const GroupDetail = ({ group, onBack }) => {
                     />
                   </div>
 
-                  <div>
-                    <label className="text-gray-400 text-sm mb-1 block">
-                      Paid By
-                    </label>
-                    <select
-                      value={form.paidBy}
-                      onChange={(e) =>
-                        setForm((currentForm) => ({
-                          ...currentForm,
-                          paidBy: e.target.value,
-                        }))
-                      }
-                      required
-                      className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
-                      <option value="">Select member</option>
-                      {detail.members.map((member) => (
-                        <option key={member._id} value={member.name}>
-                          {member.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-gray-400 text-sm mb-1 block">
-                      Split Between
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {detail.members.map((member) => (
-                        <label
-                          key={member._id}
-                          className="flex items-center gap-2 bg-gray-700 px-3 py-2 rounded-lg cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            value={member.name}
-                            checked={form.splitBetween.includes(member.name)}
-                            onChange={(e) =>
-                              toggleSplitMember(member.name, e.target.checked)
-                            }
-                            className="accent-indigo-500"
-                          />
-                          <span className="text-white text-sm">
-                            {member.name}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
+                  {["paidBy", "splitBetween"].map((field) => {
+                    const allNames = detail.members.map((m) => m.name);
+                    const label = field === "paidBy" ? "Paid By" : "Split Between";
+                    return (
+                      <div key={field}>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="text-gray-400 text-sm">{label}</label>
+                          <button
+                            type="button"
+                            onClick={() => toggleAll(field, allNames)}
+                            className="text-indigo-400 text-xs hover:text-indigo-300"
+                          >
+                            {form[field].length === allNames.length ? "Deselect All" : "Select All"}
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {detail.members.map((member) => {
+                            const selected = form[field].includes(member.name);
+                            return (
+                              <button
+                                key={member._id}
+                                type="button"
+                                onClick={() => toggleMember(field, member.name, !selected)}
+                                className={`px-3 py-1 rounded-full text-sm transition ${
+                                  selected
+                                    ? "bg-indigo-600 text-white"
+                                    : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                                }`}
+                              >
+                                {member.name}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
 
                   <button
                     type="submit"
@@ -262,7 +259,7 @@ const GroupDetail = ({ group, onBack }) => {
                           {expense.description}
                         </p>
                         <p className="text-gray-400 text-xs">
-                          Paid by {expense.paidBy} • Split{" "}
+                          Paid by {Array.isArray(expense.paidBy) ? expense.paidBy.join(", ") : expense.paidBy} • Split{" "}
                           {expense.splitBetween.length} ways
                         </p>
                       </div>
@@ -291,69 +288,56 @@ const GroupDetail = ({ group, onBack }) => {
           {/* Right — Members & Settlements */}
           <div className="space-y-6">
             {/* Members */}
-            <div className="bg-gray-800 rounded-2xl p-6">
-              <h2 className="text-white font-semibold text-lg mb-4">
-                Members 👥
-              </h2>
-              <div className="space-y-2">
+            <div className="bg-gray-800 rounded-2xl p-4">
+              <h2 className="text-white font-semibold mb-3">Members 👥</h2>
+              <div className="flex flex-wrap gap-2">
                 {detail.members.map((member) => (
                   <div
                     key={member._id}
-                    className="flex items-center gap-3 bg-gray-700 px-3 py-2 rounded-lg"
+                    className="flex items-center gap-2 bg-gray-700 px-3 py-1.5 rounded-full"
                   >
-                    <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    <div className="w-5 h-5 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
                       {member.name?.[0]?.toUpperCase() || "?"}
                     </div>
-                    <div>
-                      <p className="text-white text-sm font-medium">
-                        {member.name}
-                      </p>
-                      {member.upiId && (
-                        <p className="text-gray-400 text-xs">{member.upiId}</p>
-                      )}
-                    </div>
+                    <span className="text-white text-sm">{member.name}</span>
+                    {member.upiId && (
+                      <span className="text-gray-400 text-xs">· {member.upiId}</span>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Settlements */}
-            <div className="bg-gray-800 rounded-2xl p-6">
-              <h2 className="text-white font-semibold text-lg mb-4">
-                Settlements 💰
-              </h2>
+            <div className="bg-gray-800 rounded-2xl p-4">
+              <h2 className="text-white font-semibold mb-3">Settlements 💰</h2>
               {settlements.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {settlements.map((s) => (
                     <div
                       key={`${s.from}-${s.to}`}
-                      className="bg-gray-700 px-4 py-3 rounded-lg"
+                      className="bg-gray-700 px-3 py-2 rounded-lg"
                     >
-                      <p className="text-white text-sm">
-                        <span className="text-red-400 font-medium">
-                          {s.from}
-                        </span>
-                        {" owes "}
-                        <span className="text-green-400 font-medium">
-                          {s.to}
-                        </span>
-                      </p>
-                      <p className="text-indigo-400 font-bold mt-1 mb-3">
-                        ₹{s.amount}
-                      </p>
-
-                      <div className="flex gap-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm">
+                          <span className="text-red-400 font-medium">{s.from}</span>
+                          <span className="text-gray-400"> → </span>
+                          <span className="text-green-400 font-medium">{s.to}</span>
+                        </p>
+                        <span className="text-indigo-400 font-bold text-sm">₹{s.amount}</span>
+                      </div>
+                      <div className="flex gap-2 mt-2">
                         {s.upiId && (
                           <a
                             href={`upi://pay?pa=${s.upiId}&pn=${s.to}&am=${s.amount}&cu=INR`}
-                            className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-xs text-center transition"
+                            className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-1.5 rounded-lg text-xs text-center transition"
                           >
                             Pay via UPI 💳
                           </a>
                         )}
                         <button
                           onClick={() => handleMarkSettled(s.from, s.to, s.amount)}
-                          className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-xs transition"
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white py-1.5 rounded-lg text-xs transition"
                         >
                           Mark Settled ✅
                         </button>
@@ -362,9 +346,7 @@ const GroupDetail = ({ group, onBack }) => {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-4">
-                  All settled up! 🎉
-                </p>
+                <p className="text-gray-500 text-center py-4">All settled up! 🎉</p>
               )}
             </div>
           </div>

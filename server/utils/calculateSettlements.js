@@ -8,14 +8,17 @@ const calculateSettlements = (expenses, members, payments = []) => {
 
   // Calculate balances from expenses
   expenses.forEach((expense) => {
-    const paidBy = expense.paidBy;
+    const payers = Array.isArray(expense.paidBy) ? expense.paidBy : [expense.paidBy];
     const splitBetween = expense.splitBetween;
-    const shareAmount = expense.amount / splitBetween.length;
+    const sharePerPayer = expense.amount / payers.length;
+    const sharePerSplit = expense.amount / splitBetween.length;
 
-    balances[paidBy] = (balances[paidBy] || 0) + expense.amount;
+    payers.forEach((payer) => {
+      balances[payer] = (balances[payer] || 0) + sharePerPayer;
+    });
 
     splitBetween.forEach((memberName) => {
-      balances[memberName] = (balances[memberName] || 0) - shareAmount;
+      balances[memberName] = (balances[memberName] || 0) - sharePerSplit;
     });
   });
 
