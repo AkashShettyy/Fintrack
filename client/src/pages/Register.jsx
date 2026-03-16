@@ -16,7 +16,7 @@ const Register = () => {
     setLoading(true);
     try {
       await register(name, email, password);
-      toast.success("Account created! 🎉");
+      toast.success("Account created!");
       navigate("/dashboard");
     } catch (error) {
       toast.error(error.response?.data?.message || "Registration failed");
@@ -25,66 +25,60 @@ const Register = () => {
     }
   };
 
+  const inputClass =
+    "w-full bg-[#0f1117] border border-white/10 text-white placeholder-gray-600 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition";
+
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
-      <div className="bg-gray-800 p-8 rounded-2xl shadow-lg w-full max-w-md">
-        <h1 className="text-3xl font-bold text-white mb-2">
-          Create account 🚀
-        </h1>
-        <p className="text-gray-400 mb-6">Start managing your finances today</p>
+    <div className="min-h-screen bg-[#0f1117] flex items-center justify-center px-4">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <span className="text-2xl font-bold text-white tracking-tight">
+            Fin<span className="text-indigo-400">Track</span>
+          </span>
+          <p className="text-gray-500 text-sm mt-1">Personal & Group Finance Manager</p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-gray-400 text-sm mb-1 block">Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Akash"
-              required
-              className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
+        <div className="bg-[#1a1d27] border border-white/5 rounded-2xl p-8">
+          <h1 className="text-xl font-bold text-white mb-1">Create account</h1>
+          <p className="text-gray-500 text-sm mb-6">Start managing your finances today</p>
 
-          <div>
-            <label className="text-gray-400 text-sm mb-1 block">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="akash@gmail.com"
-              required
-              className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {[
+              { label: "Name", type: "text", value: name, set: setName, placeholder: "Your name" },
+              { label: "Email", type: "email", value: email, set: setEmail, placeholder: "you@example.com" },
+              { label: "Password", type: "password", value: password, set: setPassword, placeholder: "••••••••" },
+            ].map(({ label, type, value, set, placeholder }) => (
+              <div key={label}>
+                <label className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1.5 block">
+                  {label}
+                </label>
+                <input
+                  type={type}
+                  value={value}
+                  onChange={(e) => set(e.target.value)}
+                  placeholder={placeholder}
+                  required
+                  className={inputClass}
+                />
+              </div>
+            ))}
 
-          <div>
-            <label className="text-gray-400 text-sm mb-1 block">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl text-sm transition mt-2"
+            >
+              {loading ? "Creating account..." : "Create account"}
+            </button>
+          </form>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50"
-          >
-            {loading ? "Creating account..." : "Register"}
-          </button>
-        </form>
-
-        <p className="text-gray-400 text-center mt-6">
-          Already have an account?{" "}
-          <Link to="/login" className="text-indigo-400 hover:underline">
-            Login
-          </Link>
-        </p>
+          <p className="text-gray-500 text-sm text-center mt-6">
+            Already have an account?{" "}
+            <Link to="/login" className="text-indigo-400 hover:text-indigo-300 font-medium transition">
+              Sign in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
