@@ -39,6 +39,7 @@ const subscriptionSchema = new mongoose.Schema(
       enum: ["active", "cancelled", "paused"],
       default: "active",
     },
+    notes: { type: String, default: "", trim: true },
     reminderSent: {
       type: Boolean,
       default: false,

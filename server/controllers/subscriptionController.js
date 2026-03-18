@@ -3,30 +3,18 @@ const Subscription = require("../models/Subscription");
 // @route  POST /api/subscriptions
 const addSubscription = async (req, res) => {
   try {
-    const {
-      name,
-      amount,
-      currency,
-      category,
-      billingCycle,
-      renewalDate,
-      status,
-    } = req.body;
+    const { name, amount, currency, category, billingCycle, renewalDate, status, notes } = req.body;
+
+    if (!name?.trim()) return res.status(400).json({ message: "Name is required" });
+    if (!amount || Number(amount) <= 0) return res.status(400).json({ message: "Amount must be greater than 0" });
+    if (!renewalDate) return res.status(400).json({ message: "Renewal date is required" });
 
     const subscription = await Subscription.create({
-      user: req.user._id,
-      name,
-      amount,
-      currency,
-      category,
-      billingCycle,
-      renewalDate,
-      status,
+      user: req.user._id, name: name.trim(), amount: Number(amount),
+      currency, category, billingCycle, renewalDate, status, notes: notes?.trim() || "",
     });
-
     res.status(201).json(subscription);
   } catch (error) {
-    console.log("FULL ERROR:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -38,20 +26,22 @@ const getSubscriptions = async (req, res) => {
       renewalDate: 1,
     });
 
-    // Calculate totals
-    const monthlyTotal = subscriptions
-      .filter((s) => s.billingCycle === "monthly" && s.status === "active")
+    // Calculate totals — monthly includes annualized monthly subs
+    const active = subscriptions.filter((s) => s.status === "active");
+    const monthlyTotal = active
+      .filter((s) => s.billingCycle === "monthly")
       .reduce((acc, s) => acc + s.amount, 0);
-
-    const yearlyTotal = subscriptions
-      .filter((s) => s.billingCycle === "yearly" && s.status === "active")
+    const yearlyTotal = active
+      .filter((s) => s.billingCycle === "yearly")
       .reduce((acc, s) => acc + s.amount, 0);
+    const annualizedTotal = monthlyTotal * 12 + yearlyTotal;
 
     res.json({
       subscriptions,
       summary: {
         monthlyTotal,
         yearlyTotal,
+        annualizedTotal,
         totalSubscriptions: subscriptions.length,
       },
     });

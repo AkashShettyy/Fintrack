@@ -16,27 +16,12 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: "*", credentials: false }));
+app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173", credentials: true }));
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/groups", groupRoutes);
-
-app.get("/test-email", async (req, res) => {
-  const sendEmail = require("./utils/sendEmail");
-  const { reminderEmail } = require("./utils/emailTemplates");
-  try {
-    await sendEmail({
-      to: process.env.EMAIL_USER,
-      subject: "Test Email from FinTrack 💸",
-      html: reminderEmail("Akash", "Netflix", 649, new Date()),
-    });
-    res.json({ message: "Email sent! ✅ Check your inbox" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
 
 app.get("/", (req, res) => {
   res.json({ message: "FinTrack API is running 🚀" });

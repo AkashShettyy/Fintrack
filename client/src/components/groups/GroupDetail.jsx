@@ -10,16 +10,21 @@ const inputCls = "w-full bg-white/[0.05] border border-white/[0.1] text-white pl
 export default function GroupDetail({ group, onBack }) {
   const [detail, setDetail] = useState(null);
   const [settlements, setSettlements] = useState([]);
+  const [balances, setBalances] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState(initialForm);
 
-  useEffect(() => { load(); }, [group._id]);
+  useEffect(() => { loadAll(); }, [group._id]);
 
-  const load = async () => {
+  const loadAll = async () => {
     try {
-      const [{ data: g }, { data: s }] = await Promise.all([api.get(`/groups/${group._id}`), api.get(`/groups/${group._id}/settlements`)]);
-      setDetail(g); setSettlements(s);
+      const [{ data: g }, { data: s }, { data: b }] = await Promise.all([
+        api.get(`/groups/${group._id}`),
+        api.get(`/groups/${group._id}/settlements`),
+        api.get(`/groups/${group._id}/balances`),
+      ]);
+      setDetail(g); setSettlements(s); setBalances(b);
     } catch { toast.error("Failed to load group"); }
   };
 
@@ -29,19 +34,19 @@ export default function GroupDetail({ group, onBack }) {
     setSubmitting(true);
     try {
       await api.post(`/groups/${group._id}/expenses`, { description: form.description.trim(), amount: Number(form.amount), paidBy: form.paidBy, splitBetween: form.splitBetween });
-      toast.success("Expense added"); setForm(initialForm); setShowForm(false); await load();
+      toast.success("Expense added"); setForm(initialForm); setShowForm(false); await loadAll();
     } catch (err) { toast.error(err.response?.data?.message || "Error"); }
     finally { setSubmitting(false); }
   };
 
   const handleDeleteExpense = async (id) => {
     if (!window.confirm("Delete this expense?")) return;
-    try { await api.delete(`/groups/${group._id}/expenses/${id}`); toast.success("Deleted"); await load(); }
+    try { await api.delete(`/groups/${group._id}/expenses/${id}`); toast.success("Deleted"); await loadAll(); }
     catch { toast.error("Failed"); }
   };
 
   const handleSettle = async (from, to, amount) => {
-    try { await api.put(`/groups/${group._id}/settlements/settle`, { from, to, amount }); toast.success("Payment recorded"); await load(); }
+    try { await api.put(`/groups/${group._id}/settlements/settle`, { from, to, amount }); toast.success("Payment recorded"); await loadAll(); }
     catch { toast.error("Failed"); }
   };
 
@@ -119,7 +124,7 @@ export default function GroupDetail({ group, onBack }) {
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Amount (₹)</label>
-                      <input type="number" min="0" step="0.01" value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} placeholder="0.00" required className={inputCls} />
+                      <input type="number" min="0.01" step="0.01" value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} placeholder="0.00" required className={inputCls} />
                     </div>
                   </div>
 
@@ -196,6 +201,31 @@ export default function GroupDetail({ group, onBack }) {
 
           {/* Right sidebar */}
           <div className="space-y-4">
+
+            {/* Member balances */}
+            {balances.length > 0 && (
+              <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-5">
+                <h2 className="text-white font-semibold text-sm mb-4">Balances</h2>
+                <div className="space-y-2.5">
+                  {balances.map((b) => (
+                    <div key={b.name} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+                          {b.name[0].toUpperCase()}
+                        </div>
+                        <span className="text-gray-300 text-sm font-medium">{b.name}</span>
+                      </div>
+                      <span className={`text-sm font-bold ${
+                        b.status === "owed" ? "text-emerald-400" : b.status === "owes" ? "text-red-400" : "text-gray-500"
+                      }`}>
+                        {b.status === "owed" ? `+₹${b.balance}` : b.status === "owes" ? `-₹${Math.abs(b.balance)}` : "Settled"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Members */}
             <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">

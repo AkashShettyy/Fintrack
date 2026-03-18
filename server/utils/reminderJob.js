@@ -9,7 +9,22 @@ const startReminderJob = () => {
     console.log("⏰ Running subscription reminder job...");
 
     try {
+      // Reset reminderSent when renewalDate advances past today (subscription renewed)
       const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const renewalReset = await Subscription.find({
+        status: "active",
+        reminderSent: true,
+        renewalDate: { $lt: today },
+      });
+      for (const sub of renewalReset) {
+        // Advance renewal date by one billing cycle and reset flag
+        const next = new Date(sub.renewalDate);
+        if (sub.billingCycle === "monthly") next.setMonth(next.getMonth() + 1);
+        else next.setFullYear(next.getFullYear() + 1);
+        await Subscription.findByIdAndUpdate(sub._id, { renewalDate: next, reminderSent: false });
+      }
+
       const threeDaysLater = new Date();
       threeDaysLater.setDate(today.getDate() + 3);
 

@@ -19,19 +19,15 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const { data } = await api.post("/auth/login", { email, password });
     localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data));
+    localStorage.setItem("user", JSON.stringify({ _id: data._id, name: data.name, email: data.email }));
     setUser(data);
     return data;
   };
 
   const register = async (name, email, password) => {
-    const { data } = await api.post("/auth/register", {
-      name,
-      email,
-      password,
-    });
+    const { data } = await api.post("/auth/register", { name, email, password });
     localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data));
+    localStorage.setItem("user", JSON.stringify({ _id: data._id, name: data.name, email: data.email }));
     setUser(data);
     return data;
   };

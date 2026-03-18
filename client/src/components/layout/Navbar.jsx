@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
@@ -21,6 +22,7 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -41,18 +43,14 @@ const Navbar = () => {
           <span className="font-bold text-white text-[15px] tracking-tight">FinTrack</span>
         </Link>
 
-        {/* Nav links */}
+        {/* Desktop nav */}
         <nav className="hidden sm:flex items-center gap-1 bg-white/[0.04] border border-white/[0.06] rounded-xl px-1.5 py-1.5">
           {NAV.map(({ to, label, icon }) => {
             const active = pathname === to;
             return (
-              <Link
-                key={to}
-                to={to}
+              <Link key={to} to={to}
                 className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 ${
-                  active
-                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                    : "text-gray-400 hover:text-white hover:bg-white/[0.06]"
+                  active ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30" : "text-gray-400 hover:text-white hover:bg-white/[0.06]"
                 }`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">{icon}</svg>
@@ -62,7 +60,7 @@ const Navbar = () => {
           })}
         </nav>
 
-        {/* User */}
+        {/* Right */}
         <div className="flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-2.5 bg-white/[0.04] border border-white/[0.06] rounded-xl px-3 py-2">
             <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-[11px] font-bold shrink-0">
@@ -70,18 +68,55 @@ const Navbar = () => {
             </div>
             <span className="text-gray-300 text-sm font-medium">{user?.name}</span>
           </div>
-          <button
-            onClick={handleLogout}
-            title="Logout"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition text-sm font-medium border border-transparent hover:border-red-500/20"
+          <button onClick={handleLogout}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition text-sm font-medium border border-transparent hover:border-red-500/20"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            <span className="hidden sm:inline">Logout</span>
+            Logout
+          </button>
+
+          {/* Mobile hamburger */}
+          <button onClick={() => setMobileOpen((v) => !v)}
+            className="sm:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/[0.06] transition"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {mobileOpen
+                ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              }
+            </svg>
           </button>
         </div>
       </div>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div className="sm:hidden border-t border-white/[0.05] px-4 py-3 space-y-1">
+          {NAV.map(({ to, label, icon }) => {
+            const active = pathname === to;
+            return (
+              <Link key={to} to={to} onClick={() => setMobileOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
+                  active ? "bg-indigo-600 text-white" : "text-gray-400 hover:text-white hover:bg-white/[0.06]"
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">{icon}</svg>
+                {label}
+              </Link>
+            );
+          })}
+          <button onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Logout
+          </button>
+        </div>
+      )}
     </header>
   );
 };
