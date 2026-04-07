@@ -56,34 +56,57 @@ export default function Groups() {
   if (selected) return <GroupDetail group={selected} onBack={() => { setSelected(null); fetchGroups(); }} />;
 
   return (
-    <div className="min-h-screen bg-[#080a10]">
+    <div className="app-shell">
       <Navbar />
-      <div className="max-w-screen-xl mx-auto px-5 sm:px-8 py-8">
-
-        {/* Header */}
-        <div className="flex items-start justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Bill Splitter</h1>
-            <p className="text-gray-500 text-sm mt-1">Split expenses fairly across groups</p>
+      <div className="page-wrap">
+        <div className="hero-panel p-6 sm:p-8 mb-6">
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-cyan-300">Shared Expenses</p>
+              <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Bill Splitter</h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-300">
+                Organize group spending, keep member lists visible, and open settlements from a cleaner workspace.
+              </p>
+            </div>
+            <button
+              onClick={() => { setShowForm((v) => !v); setForm({ name: "", description: "" }); setMembers([{ name: "", upiId: "" }]); }}
+              className={`flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-semibold transition-all ${
+                showForm
+                  ? "bg-white/[0.06] border border-white/[0.1] text-gray-300 hover:bg-white/[0.09]"
+                  : "bg-gradient-to-r from-cyan-500 via-indigo-500 to-violet-600 hover:from-cyan-400 hover:via-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-600/25"
+              }`}
+            >
+              {showForm
+                ? <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>Cancel</>
+                : <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>New Group</>
+              }
+            </button>
           </div>
-          <button
-            onClick={() => { setShowForm((v) => !v); setForm({ name: "", description: "" }); setMembers([{ name: "", upiId: "" }]); }}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-              showForm
-                ? "bg-white/[0.06] border border-white/[0.1] text-gray-300 hover:bg-white/[0.09]"
-                : "bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-600/25"
-            }`}
-          >
-            {showForm
-              ? <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>Cancel</>
-              : <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>New Group</>
-            }
-          </button>
         </div>
 
-        {/* Create form */}
+        <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_280px] gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              { label: "Groups", value: groups.length, tone: "text-cyan-300", border: "border-cyan-500/20" },
+              { label: "Members", value: groups.reduce((sum, group) => sum + group.members.length, 0), tone: "text-indigo-300", border: "border-indigo-500/20" },
+              { label: "Expenses", value: groups.reduce((sum, group) => sum + group.expenses.length, 0), tone: "text-violet-300", border: "border-violet-500/20" },
+            ].map(({ label, value, tone, border }) => (
+              <div key={label} className={`rounded-2xl border ${border} bg-white/[0.04] px-5 py-4`}>
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">{label}</p>
+                <p className={`mt-2 text-2xl font-bold ${tone}`}>{value}</p>
+              </div>
+            ))}
+          </div>
+          <div className="glass-card p-5">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Group Design</p>
+            <p className="mt-3 text-sm leading-6 text-gray-300">
+              Keep descriptions short and member names clear so settlement views stay readable when group activity grows.
+            </p>
+          </div>
+        </div>
+
         {showForm && (
-          <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 mb-6">
+          <div className="glass-card p-6 mb-6">
             <h2 className="text-white font-semibold mb-5">Create New Group</h2>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -124,14 +147,12 @@ export default function Groups() {
           </div>
         )}
 
-        {/* Groups grid */}
         {groups.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {groups.map((group) => {
               const total = group.expenses?.reduce((s, e) => s + e.amount, 0) || 0;
               return (
-                <div key={group._id} className="bg-white/[0.03] border border-white/[0.07] hover:border-indigo-500/30 rounded-2xl p-5 flex flex-col gap-4 transition-all hover:bg-white/[0.05] group">
-                  {/* Card header */}
+                <div key={group._id} className="glass-card hover:border-indigo-500/30 rounded-2xl p-5 flex flex-col gap-4 transition-all hover:bg-white/[0.05] group">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold text-base shrink-0 shadow-lg shadow-indigo-500/25">
@@ -150,7 +171,6 @@ export default function Groups() {
                     </button>
                   </div>
 
-                  {/* Stats row */}
                   <div className="flex items-center gap-3">
                     <div className="flex-1 bg-white/[0.04] border border-white/[0.06] rounded-xl px-3 py-2 text-center">
                       <p className="text-white font-bold text-sm">{group.expenses.length}</p>
@@ -166,7 +186,6 @@ export default function Groups() {
                     </div>
                   </div>
 
-                  {/* Member avatars */}
                   <div className="flex items-center justify-between">
                     <div className="flex -space-x-2">
                       {group.members.slice(0, 6).map((m, i) => (
@@ -195,7 +214,7 @@ export default function Groups() {
             })}
           </div>
         ) : (
-          <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl flex flex-col items-center justify-center py-24 text-center">
+          <div className="glass-card flex flex-col items-center justify-center py-24 text-center">
             <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/[0.07] flex items-center justify-center mb-4">
               <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
