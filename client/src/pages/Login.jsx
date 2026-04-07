@@ -25,27 +25,53 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080a10] flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Background glows */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[400px] h-[300px] bg-violet-600/8 rounded-full blur-[80px] pointer-events-none" />
+    <div className="min-h-screen flex items-center justify-center px-4 py-8 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute left-[12%] top-[14%] h-56 w-56 rounded-full bg-cyan-500/10 blur-[100px]" />
+        <div className="absolute right-[10%] top-[20%] h-72 w-72 rounded-full bg-violet-600/12 blur-[120px]" />
+        <div className="absolute bottom-[8%] left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-indigo-500/10 blur-[120px]" />
+      </div>
 
-      <div className="relative w-full max-w-[400px]">
-        {/* Logo */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-xl shadow-indigo-500/30 mb-4">
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+      <div className="relative w-full max-w-5xl grid lg:grid-cols-[1.15fr_0.85fr] gap-6 items-stretch">
+        <section className="hero-panel hidden lg:flex flex-col justify-between p-8 xl:p-10">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-200">
+              FinTrack
+            </div>
+            <h1 className="mt-6 max-w-lg text-4xl font-bold tracking-tight text-white xl:text-5xl">
+              Keep subscriptions, shared costs, and renewal risk in one place.
+            </h1>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-gray-300">
+              A cleaner command center for personal spending and group settlements. Track recurring spend, spot renewals early, and open shared groups without digging through spreadsheets.
+            </p>
           </div>
-          <h1 className="text-xl font-bold text-white tracking-tight">FinTrack</h1>
-          <p className="text-gray-500 text-sm mt-1">Personal & Group Finance Manager</p>
-        </div>
 
-        {/* Card */}
-        <div className="bg-white/[0.04] backdrop-blur-sm border border-white/[0.08] rounded-2xl p-8 shadow-2xl">
-          <h2 className="text-lg font-semibold text-white mb-1">Sign in to your account</h2>
-          <p className="text-gray-500 text-sm mb-7">Enter your credentials below</p>
+          <div className="grid grid-cols-3 gap-4">
+            {[
+              { label: "Renewals", value: "Smart", tone: "text-cyan-300" },
+              { label: "Shared bills", value: "Grouped", tone: "text-indigo-300" },
+              { label: "Monthly view", value: "Instant", tone: "text-violet-300" },
+            ].map(({ label, value, tone }) => (
+              <div key={label} className="glass-card p-4">
+                <p className="text-[11px] uppercase tracking-[0.22em] text-gray-500">{label}</p>
+                <p className={`mt-2 text-xl font-semibold ${tone}`}>{value}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <div className="glass-card p-8 sm:p-10">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-400 via-indigo-500 to-violet-600 flex items-center justify-center shadow-xl shadow-indigo-500/30">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-white">Sign in to your account</h2>
+              <p className="text-gray-400 text-sm mt-1">Enter your credentials below</p>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
