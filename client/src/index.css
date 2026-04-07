@@ -1,3 +1,100 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --bg: #080a10;
+    --panel: rgba(255, 255, 255, 0.04);
+    --panel-strong: rgba(255, 255, 255, 0.08);
+    --line: rgba(255, 255, 255, 0.08);
+    --text: #f7f8fb;
+    --muted: #98a2b3;
+    --brand: #7c3aed;
+    --brand-soft: rgba(124, 58, 237, 0.16);
+    --accent: #06b6d4;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top, rgba(99, 102, 241, 0.2), transparent 28%),
+      radial-gradient(circle at 85% 15%, rgba(6, 182, 212, 0.16), transparent 18%),
+      linear-gradient(180deg, #0a0d16 0%, #080a10 45%, #06070b 100%);
+    color: var(--text);
+    font-feature-settings: "ss01" 1, "cv02" 1, "cv11" 1;
+  }
+
+  ::selection {
+    background: rgba(99, 102, 241, 0.35);
+    color: white;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.22);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+  }
+}
+
+@layer components {
+  .app-shell {
+    @apply min-h-screen bg-transparent;
+  }
+
+  .page-wrap {
+    @apply relative max-w-screen-xl mx-auto px-5 sm:px-8 py-8;
+  }
+
+  .page-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto auto 1.5rem;
+    width: min(100%, 18rem);
+    height: 14rem;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.16), transparent 68%);
+    filter: blur(24px);
+    pointer-events: none;
+  }
+
+  .hero-panel {
+    @apply relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-white/[0.04] backdrop-blur-xl;
+    box-shadow: 0 30px 80px rgba(3, 7, 18, 0.45);
+  }
+
+  .hero-panel::after {
+    content: "";
+    position: absolute;
+    inset: auto -4rem -5rem auto;
+    width: 12rem;
+    height: 12rem;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.16), transparent 70%);
+    filter: blur(12px);
+    pointer-events: none;
+  }
+
+  .glass-card {
+    @apply rounded-2xl border border-white/[0.08] bg-white/[0.04] backdrop-blur-sm;
+    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.18);
+  }
+}
