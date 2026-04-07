@@ -50,17 +50,33 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080a10]">
+    <div className="app-shell">
       <Navbar />
-      <div className="max-w-screen-xl mx-auto px-5 sm:px-8 py-8">
-
-        {/* Page title */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-white tracking-tight">Dashboard</h1>
-          <p className="text-gray-500 text-sm mt-1">Your complete financial overview</p>
+      <div className="page-wrap">
+        <div className="hero-panel p-6 sm:p-8 mb-6">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-cyan-300">Overview</p>
+              <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Dashboard</h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-300">
+                A live snapshot of your recurring spend, active services, and recent group activity.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {[
+                { label: "Active", value: activeCount },
+                { label: "Groups", value: groups.length },
+                { label: "Monthly", value: `₹${(summary.monthlyTotal || 0).toLocaleString()}` },
+              ].map(({ label, value }) => (
+                <div key={label} className="glass-card min-w-[120px] px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-gray-500">{label}</p>
+                  <p className="mt-2 text-lg font-semibold text-white">{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Stat cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           {STAT_CONFIG.map(({ key, label, prefix, color, border, text, icon }) => (
             <div key={key} className={`relative bg-gradient-to-br ${color} border ${border} rounded-2xl p-6 overflow-hidden`}>
@@ -83,7 +99,7 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
           {/* Chart */}
-          <div className="lg:col-span-2 bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6">
+          <div className="lg:col-span-2 glass-card p-6">
             <div className="flex items-center justify-between mb-1">
               <h2 className="text-sm font-semibold text-white">Spend Breakdown</h2>
               <button onClick={() => navigate("/subscriptions")} className="text-xs text-indigo-400 hover:text-indigo-300 transition font-medium">View all →</button>
@@ -127,7 +143,7 @@ export default function Dashboard() {
           </div>
 
           {/* Groups */}
-          <div className="lg:col-span-3 bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6">
+          <div className="lg:col-span-3 glass-card p-6">
             <div className="flex items-center justify-between mb-1">
               <h2 className="text-sm font-semibold text-white">Recent Groups</h2>
               <button onClick={() => navigate("/groups")} className="text-xs text-indigo-400 hover:text-indigo-300 transition font-medium">View all →</button>
