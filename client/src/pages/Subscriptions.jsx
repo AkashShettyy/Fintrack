@@ -94,49 +94,63 @@ export default function Subscriptions() {
   const annualized = summary.annualizedTotal ?? ((summary.monthlyTotal || 0) * 12 + (summary.yearlyTotal || 0));
 
   return (
-    <div className="min-h-screen bg-[#080a10]">
+    <div className="app-shell">
       <Navbar />
-      <div className="max-w-screen-xl mx-auto px-5 sm:px-8 py-8">
-
-        {/* Header */}
-        <div className="flex items-start justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Subscriptions</h1>
-            <p className="text-gray-500 text-sm mt-1">Track and manage all recurring payments</p>
-          </div>
-          <button
-            onClick={() => { setShowForm((v) => !v); setForm(defaultForm); setEditId(null); }}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-              showForm
-                ? "bg-white/[0.06] border border-white/[0.1] text-gray-300 hover:bg-white/[0.09]"
-                : "bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-600/25"
-            }`}
-          >
-            {showForm
-              ? <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>Cancel</>
-              : <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>Add Subscription</>
-            }
-          </button>
-        </div>
-
-        {/* Summary — now shows annualized total */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          {[
-            { label: "Monthly", value: `₹${(summary.monthlyTotal || 0).toLocaleString()}`, color: "text-indigo-400", border: "border-indigo-500/20", bg: "from-indigo-600/10 to-transparent" },
-            { label: "Annual Cost", value: `₹${annualized.toLocaleString()}`, color: "text-violet-400", border: "border-violet-500/20", bg: "from-violet-600/10 to-transparent", sub: "monthly×12 + yearly" },
-            { label: "Total", value: summary.totalSubscriptions || 0, color: "text-pink-400", border: "border-pink-500/20", bg: "from-pink-600/10 to-transparent" },
-          ].map(({ label, value, color, border, bg, sub }) => (
-            <div key={label} className={`bg-gradient-to-br ${bg} border ${border} rounded-2xl px-5 py-4`}>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">{label}</p>
-              <p className={`text-2xl font-bold ${color} tracking-tight`}>{value}</p>
-              {sub && <p className="text-gray-600 text-[11px] mt-1">{sub}</p>}
+      <div className="page-wrap">
+        <div className="hero-panel p-6 sm:p-8 mb-6">
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-cyan-300">Recurring Spend</p>
+              <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Subscriptions</h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-300">
+                Track renewals, billing cycles, and annualized cost without losing detail on individual services.
+              </p>
             </div>
-          ))}
+            <button
+              onClick={() => { setShowForm((v) => !v); setForm(defaultForm); setEditId(null); }}
+              className={`flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-semibold transition-all ${
+                showForm
+                  ? "bg-white/[0.06] border border-white/[0.1] text-gray-300 hover:bg-white/[0.09]"
+                  : "bg-gradient-to-r from-cyan-500 via-indigo-500 to-violet-600 hover:from-cyan-400 hover:via-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-600/25"
+              }`}
+            >
+              {showForm
+                ? <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>Cancel</>
+                : <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>Add Subscription</>
+              }
+            </button>
+          </div>
         </div>
 
-        {/* Form */}
+        <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_280px] gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              { label: "Monthly", value: `₹${(summary.monthlyTotal || 0).toLocaleString()}`, color: "text-indigo-300", border: "border-indigo-500/20", bg: "from-indigo-600/10 to-transparent" },
+              { label: "Annual Cost", value: `₹${annualized.toLocaleString()}`, color: "text-violet-300", border: "border-violet-500/20", bg: "from-violet-600/10 to-transparent", sub: "monthly×12 + yearly" },
+              { label: "Total", value: summary.totalSubscriptions || 0, color: "text-cyan-300", border: "border-cyan-500/20", bg: "from-cyan-600/10 to-transparent" },
+            ].map(({ label, value, color, border, bg, sub }) => (
+              <div key={label} className={`bg-gradient-to-br ${bg} border ${border} rounded-2xl px-5 py-4`}>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">{label}</p>
+                <p className={`text-2xl font-bold ${color} tracking-tight`}>{value}</p>
+                {sub && <p className="text-gray-600 text-[11px] mt-1">{sub}</p>}
+              </div>
+            ))}
+          </div>
+          <div className="glass-card p-5">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Renewal Focus</p>
+            <p className="mt-3 text-sm leading-6 text-gray-300">
+              Prioritize active subscriptions with near-term renewal dates to reduce surprise charges.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-300">0-3 days</span>
+              <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-300">4-7 days</span>
+              <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1 text-xs font-semibold text-gray-300">Later</span>
+            </div>
+          </div>
+        </div>
+
         {showForm && (
-          <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 mb-6">
+          <div className="glass-card p-6 mb-6">
             <h2 className="text-white font-semibold mb-5">{editId ? "Edit Subscription" : "New Subscription"}</h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div><label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Name</label><input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Netflix" required className={inputCls} /></div>
@@ -158,9 +172,8 @@ export default function Subscriptions() {
           </div>
         )}
 
-        {/* List */}
         {subscriptions.length > 0 ? (
-          <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl overflow-hidden">
+          <div className="glass-card overflow-hidden">
             <div className="hidden sm:grid grid-cols-[auto_1fr_110px_130px_80px_100px_60px] items-center gap-4 px-5 py-3 border-b border-white/[0.06]">
               {["", "Name", "Category", "Renewal", "Status", "Amount", ""].map((h, i) => (
                 <p key={i} className="text-[11px] font-semibold text-gray-600 uppercase tracking-widest">{h}</p>
@@ -201,7 +214,7 @@ export default function Subscriptions() {
             </div>
           </div>
         ) : (
-          <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl flex flex-col items-center justify-center py-24 text-center">
+          <div className="glass-card flex flex-col items-center justify-center py-24 text-center">
             <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/[0.07] flex items-center justify-center mb-4">
               <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
             </div>
