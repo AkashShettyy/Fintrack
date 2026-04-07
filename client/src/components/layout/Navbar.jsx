@@ -31,26 +31,27 @@ const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-[#080a10]/95 backdrop-blur-xl border-b border-white/[0.05]">
+    <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#080a10]/80 backdrop-blur-2xl">
       <div className="max-w-screen-xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/dashboard" className="flex items-center gap-2.5 shrink-0">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+        <Link to="/dashboard" className="flex items-center gap-3 shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 via-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 ring-1 ring-white/10">
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <span className="font-bold text-white text-[15px] tracking-tight">FinTrack</span>
+          <div>
+            <span className="block font-bold text-white text-[15px] tracking-tight">FinTrack</span>
+            <span className="block text-[11px] uppercase tracking-[0.28em] text-gray-500">Money OS</span>
+          </div>
         </Link>
 
-        {/* Desktop nav */}
-        <nav className="hidden sm:flex items-center gap-1 bg-white/[0.04] border border-white/[0.06] rounded-xl px-1.5 py-1.5">
+        <nav className="hidden sm:flex items-center gap-1 rounded-2xl border border-white/[0.07] bg-white/[0.04] p-1.5 shadow-[0_12px_40px_rgba(2,6,23,0.2)]">
           {NAV.map(({ to, label, icon }) => {
             const active = pathname === to;
             return (
               <Link key={to} to={to}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 ${
-                  active ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30" : "text-gray-400 hover:text-white hover:bg-white/[0.06]"
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-150 ${
+                  active ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-600/30" : "text-gray-400 hover:text-white hover:bg-white/[0.06]"
                 }`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">{icon}</svg>
@@ -60,16 +61,18 @@ const Navbar = () => {
           })}
         </nav>
 
-        {/* Right */}
         <div className="flex items-center gap-2">
-          <div className="hidden sm:flex items-center gap-2.5 bg-white/[0.04] border border-white/[0.06] rounded-xl px-3 py-2">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+          <div className="hidden sm:flex items-center gap-2.5 rounded-2xl border border-white/[0.07] bg-white/[0.04] px-3 py-2">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 via-indigo-500 to-violet-600 flex items-center justify-center text-white text-[11px] font-bold shrink-0 ring-2 ring-white/10">
               {user?.name?.[0]?.toUpperCase()}
             </div>
-            <span className="text-gray-300 text-sm font-medium">{user?.name}</span>
+            <div className="leading-none">
+              <span className="block text-gray-200 text-sm font-medium">{user?.name}</span>
+              <span className="block text-[11px] text-gray-500 mt-1">Signed in</span>
+            </div>
           </div>
           <button onClick={handleLogout}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition text-sm font-medium border border-transparent hover:border-red-500/20"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:text-red-300 hover:bg-red-500/10 transition text-sm font-medium border border-transparent hover:border-red-500/20"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -77,9 +80,8 @@ const Navbar = () => {
             Logout
           </button>
 
-          {/* Mobile hamburger */}
           <button onClick={() => setMobileOpen((v) => !v)}
-            className="sm:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/[0.06] transition"
+            className="sm:hidden p-2 rounded-xl border border-white/[0.06] bg-white/[0.03] text-gray-400 hover:text-white hover:bg-white/[0.06] transition"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {mobileOpen
@@ -91,15 +93,23 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
       {mobileOpen && (
-        <div className="sm:hidden border-t border-white/[0.05] px-4 py-3 space-y-1">
+        <div className="sm:hidden border-t border-white/[0.05] px-4 py-4 space-y-2 bg-[#090c13]/90">
+          <div className="flex items-center gap-3 px-2 pb-2">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 via-indigo-500 to-violet-600 flex items-center justify-center text-white text-sm font-bold ring-2 ring-white/10">
+              {user?.name?.[0]?.toUpperCase()}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-white">{user?.name}</p>
+              <p className="text-xs text-gray-500">Manage your workspace</p>
+            </div>
+          </div>
           {NAV.map(({ to, label, icon }) => {
             const active = pathname === to;
             return (
               <Link key={to} to={to} onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
-                  active ? "bg-indigo-600 text-white" : "text-gray-400 hover:text-white hover:bg-white/[0.06]"
+                  active ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white" : "text-gray-400 hover:text-white hover:bg-white/[0.06]"
                 }`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">{icon}</svg>
