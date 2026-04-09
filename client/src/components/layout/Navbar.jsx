@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
@@ -23,6 +23,10 @@ const Navbar = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const currentSection = useMemo(
+    () => NAV.find(({ to }) => pathname.startsWith(to))?.label || "Workspace",
+    [pathname],
+  );
 
   const handleLogout = () => {
     logout();
@@ -45,7 +49,7 @@ const Navbar = () => {
           </div>
         </Link>
 
-        <nav className="hidden sm:flex items-center gap-1 rounded-2xl border border-white/[0.07] bg-white/[0.04] p-1.5 shadow-[0_12px_40px_rgba(2,6,23,0.2)]">
+        <nav className="hidden md:flex items-center gap-1 rounded-2xl border border-white/[0.07] bg-white/[0.04] p-1.5 shadow-[0_12px_40px_rgba(2,6,23,0.2)]">
           {NAV.map(({ to, label, icon }) => {
             const active = pathname === to;
             return (
@@ -62,6 +66,9 @@ const Navbar = () => {
         </nav>
 
         <div className="flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-2 rounded-full border border-amber-400/15 bg-amber-400/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-200">
+            {currentSection}
+          </div>
           <div className="hidden sm:flex items-center gap-2.5 rounded-2xl border border-white/[0.07] bg-white/[0.04] px-3 py-2">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 via-indigo-500 to-violet-600 flex items-center justify-center text-white text-[11px] font-bold shrink-0 ring-2 ring-white/10">
               {user?.name?.[0]?.toUpperCase()}
@@ -72,7 +79,7 @@ const Navbar = () => {
             </div>
           </div>
           <button onClick={handleLogout}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:text-red-300 hover:bg-red-500/10 transition text-sm font-medium border border-transparent hover:border-red-500/20"
+            className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:text-red-300 hover:bg-red-500/10 transition text-sm font-medium border border-transparent hover:border-red-500/20"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -81,7 +88,7 @@ const Navbar = () => {
           </button>
 
           <button onClick={() => setMobileOpen((v) => !v)}
-            className="sm:hidden p-2 rounded-xl border border-white/[0.06] bg-white/[0.03] text-gray-400 hover:text-white hover:bg-white/[0.06] transition"
+            className="md:hidden p-2 rounded-xl border border-white/[0.06] bg-white/[0.03] text-gray-400 hover:text-white hover:bg-white/[0.06] transition"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {mobileOpen
@@ -94,20 +101,30 @@ const Navbar = () => {
       </div>
 
       {mobileOpen && (
-        <div className="sm:hidden border-t border-white/[0.05] px-4 py-4 space-y-2 bg-[#090c13]/90">
+        <div className="md:hidden border-t border-white/[0.05] px-4 py-4 space-y-3 bg-[#090c13]/95">
           <div className="flex items-center gap-3 px-2 pb-2">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 via-indigo-500 to-violet-600 flex items-center justify-center text-white text-sm font-bold ring-2 ring-white/10">
               {user?.name?.[0]?.toUpperCase()}
             </div>
             <div>
               <p className="text-sm font-medium text-white">{user?.name}</p>
-              <p className="text-xs text-gray-500">Manage your workspace</p>
+              <p className="text-xs text-gray-500">{currentSection}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2 px-2 pb-1">
+            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
+              <p className="text-[10px] uppercase tracking-[0.24em] text-gray-600">Workspace</p>
+              <p className="mt-1 text-sm font-semibold text-white">FinTrack</p>
+            </div>
+            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
+              <p className="text-[10px] uppercase tracking-[0.24em] text-gray-600">Account</p>
+              <p className="mt-1 truncate text-sm font-semibold text-white">{user?.email || "Signed in"}</p>
             </div>
           </div>
           {NAV.map(({ to, label, icon }) => {
             const active = pathname === to;
             return (
-              <Link key={to} to={to} onClick={() => setMobileOpen(false)}
+              <Link key={to} to={to}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
                   active ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white" : "text-gray-400 hover:text-white hover:bg-white/[0.06]"
                 }`}
