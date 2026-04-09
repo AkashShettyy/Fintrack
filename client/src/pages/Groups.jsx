@@ -14,6 +14,7 @@ export default function Groups() {
   const [form, setForm] = useState({ name: "", description: "" });
   const [members, setMembers] = useState([{ name: "", upiId: "" }]);
   const [submitting, setSubmitting] = useState(false);
+  const [query, setQuery] = useState("");
 
   useEffect(() => { fetchGroups(); }, []);
 
@@ -55,6 +56,22 @@ export default function Groups() {
 
   if (selected) return <GroupDetail group={selected} onBack={() => { setSelected(null); fetchGroups(); }} />;
 
+  const totalMembers = groups.reduce((sum, group) => sum + group.members.length, 0);
+  const totalExpenses = groups.reduce((sum, group) => sum + group.expenses.length, 0);
+  const totalSpend = groups.reduce(
+    (sum, group) => sum + (group.expenses?.reduce((inner, expense) => inner + expense.amount, 0) || 0),
+    0,
+  );
+  const filteredGroups = groups.filter((group) => {
+    const search = query.toLowerCase();
+    return (
+      !search ||
+      group.name.toLowerCase().includes(search) ||
+      (group.description || "").toLowerCase().includes(search) ||
+      group.members.some((member) => member.name.toLowerCase().includes(search))
+    );
+  });
+
   return (
     <div className="app-shell">
       <Navbar />
@@ -62,11 +79,15 @@ export default function Groups() {
         <div className="hero-panel p-6 sm:p-8 mb-6">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-cyan-300">Shared Expenses</p>
+              <p className="section-label text-cyan-300">Shared Expenses</p>
               <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Bill Splitter</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-300">
                 Organize group spending, keep member lists visible, and open settlements from a cleaner workspace.
               </p>
+              <div className="mt-4 flex flex-wrap gap-2 text-xs text-gray-400">
+                <span className="rounded-full border border-cyan-400/15 bg-cyan-400/10 px-3 py-1.5 text-cyan-200">{totalMembers} members tracked</span>
+                <span className="rounded-full border border-amber-400/15 bg-amber-400/10 px-3 py-1.5 text-amber-200">₹{totalSpend.toLocaleString()} logged</span>
+              </div>
             </div>
             <button
               onClick={() => { setShowForm((v) => !v); setForm({ name: "", description: "" }); setMembers([{ name: "", upiId: "" }]); }}
@@ -88,8 +109,8 @@ export default function Groups() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               { label: "Groups", value: groups.length, tone: "text-cyan-300", border: "border-cyan-500/20" },
-              { label: "Members", value: groups.reduce((sum, group) => sum + group.members.length, 0), tone: "text-indigo-300", border: "border-indigo-500/20" },
-              { label: "Expenses", value: groups.reduce((sum, group) => sum + group.expenses.length, 0), tone: "text-violet-300", border: "border-violet-500/20" },
+              { label: "Members", value: totalMembers, tone: "text-indigo-300", border: "border-indigo-500/20" },
+              { label: "Expenses", value: totalExpenses, tone: "text-violet-300", border: "border-violet-500/20" },
             ].map(({ label, value, tone, border }) => (
               <div key={label} className={`rounded-2xl border ${border} bg-white/[0.04] px-5 py-4`}>
                 <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">{label}</p>
@@ -102,6 +123,29 @@ export default function Groups() {
             <p className="mt-3 text-sm leading-6 text-gray-300">
               Keep descriptions short and member names clear so settlement views stay readable when group activity grows.
             </p>
+          </div>
+        </div>
+
+        <div className="glass-card mb-6 p-4 sm:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">Search Groups</p>
+              <p className="mt-2 text-sm text-gray-300">
+                Filter by group name, description, or member names before opening a workspace.
+              </p>
+            </div>
+            <div className="relative w-full lg:max-w-md">
+              <svg className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" />
+              </svg>
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search groups or members"
+                className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.04] py-3 pl-11 pr-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500/40"
+              />
+            </div>
           </div>
         </div>
 
@@ -149,7 +193,7 @@ export default function Groups() {
 
         {groups.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {groups.map((group) => {
+            {filteredGroups.map((group) => {
               const total = group.expenses?.reduce((s, e) => s + e.amount, 0) || 0;
               return (
                 <div key={group._id} className="glass-card hover:border-indigo-500/30 rounded-2xl p-5 flex flex-col gap-4 transition-all hover:bg-white/[0.05] group">
@@ -222,6 +266,13 @@ export default function Groups() {
             </div>
             <p className="text-white font-semibold">No groups yet</p>
             <p className="text-gray-500 text-sm mt-1">Create a group to start splitting bills</p>
+          </div>
+        )}
+
+        {groups.length > 0 && filteredGroups.length === 0 && (
+          <div className="glass-card mt-6 flex flex-col items-center justify-center py-16 text-center">
+            <p className="text-base font-semibold text-white">No matching groups</p>
+            <p className="mt-2 text-sm text-gray-500">Try a different group name or search for a member instead.</p>
           </div>
         )}
       </div>
