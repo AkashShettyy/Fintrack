@@ -43,6 +43,23 @@ export default function Dashboard() {
 
   const chartData = subscriptions.filter((s) => s.status === "active").map((s) => ({ name: s.name, value: s.amount }));
   const activeCount = subscriptions.filter((s) => s.status === "active").length;
+  const nextRenewals = subscriptions
+    .filter((s) => s.status === "active" && s.renewalDate)
+    .sort((a, b) => new Date(a.renewalDate) - new Date(b.renewalDate))
+    .slice(0, 4);
+  const topSubscriptions = [...subscriptions]
+    .filter((s) => s.status === "active")
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 4);
+  const totalGroupSpend = groups.reduce(
+    (sum, group) => sum + (group.expenses?.reduce((inner, expense) => inner + expense.amount, 0) || 0),
+    0,
+  );
+  const todayLabel = new Date().toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
   const statValues = {
     monthly: (summary.monthlyTotal || 0).toLocaleString(),
     yearly: (summary.yearlyTotal || 0).toLocaleString(),
@@ -56,11 +73,17 @@ export default function Dashboard() {
         <div className="hero-panel p-6 sm:p-8 mb-6">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-cyan-300">Overview</p>
+              <p className="section-label text-cyan-300">Overview</p>
               <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Dashboard</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-300">
                 A live snapshot of your recurring spend, active services, and recent group activity.
               </p>
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-gray-400">
+                <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1.5">Snapshot for {todayLabel}</span>
+                <span className="rounded-full border border-cyan-400/15 bg-cyan-400/10 px-3 py-1.5 text-cyan-200">
+                  {activeCount} active services monitored
+                </span>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {[
@@ -79,7 +102,7 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           {STAT_CONFIG.map(({ key, label, prefix, color, border, text, icon }) => (
-            <div key={key} className={`relative bg-gradient-to-br ${color} border ${border} rounded-2xl p-6 overflow-hidden`}>
+            <div key={key} className={`stat-card ${color} ${border} p-6`}>
               <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-white/[0.02] -translate-y-8 translate-x-8" />
               <div className="flex items-center justify-between mb-4">
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{label}</p>
@@ -182,6 +205,82 @@ export default function Dashboard() {
                 <button onClick={() => navigate("/groups")} className="text-indigo-400 text-xs mt-2 hover:text-indigo-300 transition">Create a group →</button>
               </div>
             )}
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 lg:grid-cols-5 gap-4">
+          <div className="lg:col-span-2 glass-card p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-semibold text-white">Upcoming Renewals</h2>
+                <p className="mt-1 text-xs text-gray-500">What needs attention next</p>
+              </div>
+              <button onClick={() => navigate("/subscriptions")} className="text-xs font-medium text-cyan-300 hover:text-cyan-200 transition">
+                Manage
+              </button>
+            </div>
+
+            {nextRenewals.length > 0 ? (
+              <div className="mt-5 space-y-3">
+                {nextRenewals.map((item) => (
+                  <div key={item._id} className="rounded-2xl border border-white/[0.07] bg-white/[0.03] px-4 py-3">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-white">{item.name}</p>
+                        <p className="mt-1 text-xs text-gray-500">
+                          {new Date(item.renewalDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })} · {item.billingCycle}
+                        </p>
+                      </div>
+                      <p className="text-sm font-semibold text-cyan-300">₹{Number(item.amount).toLocaleString()}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-5 rounded-2xl border border-white/[0.07] bg-white/[0.03] px-4 py-6 text-center text-sm text-gray-400">
+                No active renewals scheduled yet.
+              </div>
+            )}
+          </div>
+
+          <div className="lg:col-span-3 glass-card p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2 className="text-sm font-semibold text-white">Spend Signals</h2>
+                <p className="mt-1 text-xs text-gray-500">Largest active services and shared-cost footprint</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 sm:min-w-[260px]">
+                <div className="rounded-2xl border border-amber-400/15 bg-amber-400/10 px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-amber-100/70">Group Spend</p>
+                  <p className="mt-2 text-lg font-semibold text-amber-200">₹{totalGroupSpend.toLocaleString()}</p>
+                </div>
+                <div className="rounded-2xl border border-cyan-400/15 bg-cyan-400/10 px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-cyan-100/70">Top Services</p>
+                  <p className="mt-2 text-lg font-semibold text-cyan-200">{topSubscriptions.length}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-3">
+              {topSubscriptions.length > 0 ? (
+                topSubscriptions.map((subscription, index) => (
+                  <div key={subscription._id} className="flex items-center gap-4 rounded-2xl border border-white/[0.07] bg-white/[0.03] px-4 py-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/[0.07] bg-white/[0.05] text-sm font-semibold text-white">
+                      {index + 1}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-white">{subscription.name}</p>
+                      <p className="mt-1 text-xs text-gray-500">{subscription.category} · {subscription.billingCycle}</p>
+                    </div>
+                    <p className="text-sm font-semibold text-white">₹{Number(subscription.amount).toLocaleString()}</p>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] px-4 py-6 text-center text-sm text-gray-400">
+                  Add subscriptions to surface spend signals.
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
