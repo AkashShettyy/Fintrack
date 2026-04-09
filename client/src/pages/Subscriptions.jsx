@@ -47,6 +47,8 @@ export default function Subscriptions() {
   const [form, setForm] = useState(defaultForm);
   const [editId, setEditId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => { loadSubscriptions(); }, []);
 
@@ -92,6 +94,21 @@ export default function Subscriptions() {
 
   // annualizedTotal = monthly*12 + yearly (fixed from backend, fallback computed here)
   const annualized = summary.annualizedTotal ?? ((summary.monthlyTotal || 0) * 12 + (summary.yearlyTotal || 0));
+  const renewalBuckets = {
+    urgent: subscriptions.filter((sub) => sub.status === "active" && daysUntil(sub.renewalDate) <= 3 && daysUntil(sub.renewalDate) >= 0).length,
+    soon: subscriptions.filter((sub) => sub.status === "active" && daysUntil(sub.renewalDate) > 3 && daysUntil(sub.renewalDate) <= 7).length,
+  };
+  const filteredSubscriptions = subscriptions
+    .filter((sub) => {
+      const matchesQuery =
+        !query ||
+        sub.name.toLowerCase().includes(query.toLowerCase()) ||
+        sub.category.toLowerCase().includes(query.toLowerCase()) ||
+        (sub.notes || "").toLowerCase().includes(query.toLowerCase());
+      const matchesStatus = statusFilter === "all" || sub.status === statusFilter;
+      return matchesQuery && matchesStatus;
+    })
+    .sort((a, b) => new Date(a.renewalDate) - new Date(b.renewalDate));
 
   return (
     <div className="app-shell">
@@ -100,11 +117,15 @@ export default function Subscriptions() {
         <div className="hero-panel p-6 sm:p-8 mb-6">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-cyan-300">Recurring Spend</p>
+              <p className="section-label text-cyan-300">Recurring Spend</p>
               <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Subscriptions</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-300">
                 Track renewals, billing cycles, and annualized cost without losing detail on individual services.
               </p>
+              <div className="mt-4 flex flex-wrap gap-2 text-xs text-gray-400">
+                <span className="rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-red-300">{renewalBuckets.urgent} urgent renewals</span>
+                <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-amber-300">{renewalBuckets.soon} due this week</span>
+              </div>
             </div>
             <button
               onClick={() => { setShowForm((v) => !v); setForm(defaultForm); setEditId(null); }}
@@ -142,9 +163,45 @@ export default function Subscriptions() {
               Prioritize active subscriptions with near-term renewal dates to reduce surprise charges.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <span className="rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-300">0-3 days</span>
-              <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-300">4-7 days</span>
+              <span className="rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-300">0-3 days · {renewalBuckets.urgent}</span>
+              <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-300">4-7 days · {renewalBuckets.soon}</span>
               <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1 text-xs font-semibold text-gray-300">Later</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="glass-card mb-6 p-4 sm:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="relative flex-1">
+              <svg className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" />
+              </svg>
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by name, category, or notes"
+                className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.04] py-3 pl-11 pr-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500/40"
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {["all", ...STATUSES].map((status) => {
+                const active = statusFilter === status;
+                return (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => setStatusFilter(status)}
+                    className={`rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] transition ${
+                      active
+                        ? "border-cyan-400/20 bg-cyan-400/10 text-cyan-200"
+                        : "border-white/[0.08] bg-white/[0.03] text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    {status}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -180,7 +237,7 @@ export default function Subscriptions() {
               ))}
             </div>
             <div className="divide-y divide-white/[0.05]">
-              {subscriptions.map((sub) => (
+              {filteredSubscriptions.map((sub) => (
                 <div key={sub._id} className="grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_110px_130px_80px_100px_60px] items-center gap-4 px-5 py-4 hover:bg-white/[0.02] transition group">
                   <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${CAT_GRADIENT[sub.category] || CAT_GRADIENT.Other} flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-md`}>
                     {sub.name[0].toUpperCase()}
@@ -220,6 +277,13 @@ export default function Subscriptions() {
             </div>
             <p className="text-white font-semibold">No subscriptions yet</p>
             <p className="text-gray-500 text-sm mt-1">Add your first subscription to get started</p>
+          </div>
+        )}
+
+        {subscriptions.length > 0 && filteredSubscriptions.length === 0 && (
+          <div className="glass-card mt-6 flex flex-col items-center justify-center py-16 text-center">
+            <p className="text-base font-semibold text-white">No matching subscriptions</p>
+            <p className="mt-2 text-sm text-gray-500">Try a different search term or switch the status filter.</p>
           </div>
         )}
       </div>
