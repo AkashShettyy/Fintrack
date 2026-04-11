@@ -231,44 +231,65 @@ export default function Subscriptions() {
 
         {subscriptions.length > 0 ? (
           <div className="glass-card overflow-hidden">
-            <div className="hidden sm:grid grid-cols-[auto_1fr_110px_130px_80px_100px_60px] items-center gap-4 px-5 py-3 border-b border-white/[0.06]">
-              {["", "Name", "Category", "Renewal", "Status", "Amount", ""].map((h, i) => (
-                <p key={i} className="text-[11px] font-semibold text-gray-600 uppercase tracking-widest">{h}</p>
-              ))}
-            </div>
-            <div className="divide-y divide-white/[0.05]">
-              {filteredSubscriptions.map((sub) => (
-                <div key={sub._id} className="grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_110px_130px_80px_100px_60px] items-center gap-4 px-5 py-4 hover:bg-white/[0.02] transition group">
-                  <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${CAT_GRADIENT[sub.category] || CAT_GRADIENT.Other} flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-md`}>
-                    {sub.name[0].toUpperCase()}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-white font-semibold text-sm truncate">{sub.name}</p>
-                    {sub.notes
-                      ? <p className="text-gray-600 text-xs mt-0.5 truncate">{sub.notes}</p>
-                      : <p className="text-gray-500 text-xs mt-0.5 sm:hidden">{sub.category} · ₹{Number(sub.amount).toLocaleString()}/{sub.billingCycle === "monthly" ? "mo" : "yr"}</p>
-                    }
-                  </div>
-                  <p className="hidden sm:block text-gray-500 text-sm truncate">{sub.category}</p>
-                  <div className="hidden sm:flex items-center gap-2">
-                    <RenewalBadge date={sub.renewalDate} />
-                  </div>
-                  <span className={`hidden sm:inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-semibold border ${STATUS_PILL[sub.status]}`}>{sub.status}</span>
-                  <div className="hidden sm:block text-right">
-                    <p className="text-white font-bold text-sm">₹{Number(sub.amount).toLocaleString()}</p>
-                    <p className="text-gray-600 text-xs">/{sub.billingCycle === "monthly" ? "mo" : "yr"}</p>
-                  </div>
-                  <div className="flex items-center justify-end gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition">
-                    <button onClick={() => handleEdit(sub)} aria-label={`Edit ${sub.name}`} className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/10 focus-visible:text-white focus-visible:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 transition">
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                    </button>
-                    <button onClick={() => handleDelete(sub._id)} aria-label={`Delete ${sub.name}`} className="p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 focus-visible:text-red-400 focus-visible:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/30 transition">
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
-                  </div>
+            {filteredSubscriptions.length > 0 ? (
+              <>
+                <div className="hidden sm:grid grid-cols-[auto_1fr_110px_130px_80px_100px_60px] items-center gap-4 px-5 py-3 border-b border-white/[0.06]">
+                  {["", "Name", "Category", "Renewal", "Status", "Amount", ""].map((h, i) => (
+                    <p key={i} className="text-[11px] font-semibold text-gray-600 uppercase tracking-widest">{h}</p>
+                  ))}
                 </div>
-              ))}
-            </div>
+                <div className="divide-y divide-white/[0.05]">
+                  {filteredSubscriptions.map((sub) => (
+                    <div key={sub._id} className="grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_110px_130px_80px_100px_60px] items-center gap-4 px-5 py-4 hover:bg-white/[0.02] transition group">
+                      <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${CAT_GRADIENT[sub.category] || CAT_GRADIENT.Other} flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-md`}>
+                        {sub.name[0].toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-white font-semibold text-sm truncate">{sub.name}</p>
+                        {sub.notes
+                          ? <p className="text-gray-600 text-xs mt-0.5 truncate">{sub.notes}</p>
+                          : <p className="text-gray-500 text-xs mt-0.5 sm:hidden">{sub.category} · ₹{Number(sub.amount).toLocaleString()}/{sub.billingCycle === "monthly" ? "mo" : "yr"}</p>
+                        }
+                      </div>
+                      <p className="hidden sm:block text-gray-500 text-sm truncate">{sub.category}</p>
+                      <div className="hidden sm:flex items-center gap-2">
+                        <RenewalBadge date={sub.renewalDate} />
+                      </div>
+                      <span className={`hidden sm:inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-semibold border ${STATUS_PILL[sub.status]}`}>{sub.status}</span>
+                      <div className="hidden sm:block text-right">
+                        <p className="text-white font-bold text-sm">₹{Number(sub.amount).toLocaleString()}</p>
+                        <p className="text-gray-600 text-xs">/{sub.billingCycle === "monthly" ? "mo" : "yr"}</p>
+                      </div>
+                      <div className="flex items-center justify-end gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition">
+                        <button onClick={() => handleEdit(sub)} aria-label={`Edit ${sub.name}`} className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/10 focus-visible:text-white focus-visible:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 transition">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                        </button>
+                        <button onClick={() => handleDelete(sub._id)} aria-label={`Delete ${sub.name}`} className="p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 focus-visible:text-red-400 focus-visible:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/30 transition">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-400/15 bg-cyan-400/10">
+                  <svg className="h-7 w-7 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" />
+                  </svg>
+                </div>
+                <p className="text-base font-semibold text-white">No matching subscriptions</p>
+                <p className="mt-2 max-w-sm text-sm leading-6 text-gray-500">Clear the current search and status filter to bring the full list back.</p>
+                <button
+                  type="button"
+                  onClick={() => { setQuery(""); setStatusFilter("all"); }}
+                  className="mt-5 rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/15 hover:text-white"
+                >
+                  Clear filters
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="glass-card flex flex-col items-center justify-center py-24 text-center">
@@ -280,12 +301,6 @@ export default function Subscriptions() {
           </div>
         )}
 
-        {subscriptions.length > 0 && filteredSubscriptions.length === 0 && (
-          <div className="glass-card mt-6 flex flex-col items-center justify-center py-16 text-center">
-            <p className="text-base font-semibold text-white">No matching subscriptions</p>
-            <p className="mt-2 text-sm text-gray-500">Try a different search term or switch the status filter.</p>
-          </div>
-        )}
       </div>
     </div>
   );
