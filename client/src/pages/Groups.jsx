@@ -4,7 +4,7 @@ import api from "../utils/api";
 import toast from "react-hot-toast";
 import GroupDetail from "../components/groups/GroupDetail";
 
-const inputCls = "w-full bg-white/[0.05] border border-white/[0.1] text-white placeholder-gray-600 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 transition-all";
+const inputCls = "w-full bg-white/[0.05] border border-white/[0.1] text-white placeholder-gray-600 px-4 py-2.5 rounded-lg text-sm focus:outline-none focus:border-teal-500/60 focus:ring-2 focus:ring-teal-500/20 transition-all";
 
 export default function Groups() {
   const [groups, setGroups] = useState([]);
@@ -46,9 +46,9 @@ export default function Groups() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-[#080a10] flex items-center justify-center">
+    <div className="min-h-screen bg-[#070908] flex items-center justify-center">
       <div className="flex flex-col items-center gap-3">
-        <div className="w-9 h-9 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+        <div className="w-9 h-9 rounded-full border-2 border-teal-500 border-t-transparent animate-spin" />
         <p className="text-gray-500 text-sm">Loading...</p>
       </div>
     </div>
@@ -79,22 +79,22 @@ export default function Groups() {
         <div className="hero-panel p-6 sm:p-8 mb-6">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div>
-              <p className="section-label text-cyan-300">Shared Expenses</p>
+              <p className="section-label text-teal-300">Shared Expenses</p>
               <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Bill Splitter</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-300">
                 Organize group spending, keep member lists visible, and open settlements from a cleaner workspace.
               </p>
               <div className="mt-4 flex flex-wrap gap-2 text-xs text-gray-400">
-                <span className="rounded-full border border-cyan-400/15 bg-cyan-400/10 px-3 py-1.5 text-cyan-200">{totalMembers} members tracked</span>
-                <span className="rounded-full border border-amber-400/15 bg-amber-400/10 px-3 py-1.5 text-amber-200">₹{totalSpend.toLocaleString()} logged</span>
+                <span className="rounded-md border border-teal-400/15 bg-teal-400/10 px-3 py-1.5 text-teal-200">{totalMembers} members tracked</span>
+                <span className="rounded-md border border-orange-400/15 bg-orange-400/10 px-3 py-1.5 text-orange-200">₹{totalSpend.toLocaleString()} logged</span>
               </div>
             </div>
             <button
               onClick={() => { setShowForm((v) => !v); setForm({ name: "", description: "" }); setMembers([{ name: "", upiId: "" }]); }}
-              className={`flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-semibold transition-all ${
+              className={`flex items-center justify-center gap-2 text-sm font-semibold transition-all ${
                 showForm
-                  ? "bg-white/[0.06] border border-white/[0.1] text-gray-300 hover:bg-white/[0.09]"
-                  : "bg-gradient-to-r from-cyan-500 via-indigo-500 to-violet-600 hover:from-cyan-400 hover:via-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-600/25"
+                  ? "secondary-action"
+                  : "primary-action"
               }`}
             >
               {showForm
@@ -108,11 +108,11 @@ export default function Groups() {
         <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_280px] gap-4 mb-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
-              { label: "Groups", value: groups.length, tone: "text-cyan-300", border: "border-cyan-500/20" },
-              { label: "Members", value: totalMembers, tone: "text-indigo-300", border: "border-indigo-500/20" },
-              { label: "Expenses", value: totalExpenses, tone: "text-violet-300", border: "border-violet-500/20" },
+              { label: "Groups", value: groups.length, tone: "text-teal-300", border: "border-teal-500/20" },
+              { label: "Members", value: totalMembers, tone: "text-emerald-300", border: "border-emerald-500/20" },
+              { label: "Expenses", value: totalExpenses, tone: "text-orange-300", border: "border-orange-500/20" },
             ].map(({ label, value, tone, border }) => (
-              <div key={label} className={`rounded-2xl border ${border} bg-white/[0.04] px-5 py-4`}>
+              <div key={label} className={`rounded-lg border ${border} bg-white/[0.04] px-5 py-4`}>
                 <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">{label}</p>
                 <p className={`mt-2 text-2xl font-bold ${tone}`}>{value}</p>
               </div>
@@ -143,7 +143,7 @@ export default function Groups() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search groups or members"
-                className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.04] py-3 pl-11 pr-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500/40"
+                className="w-full rounded-lg border border-white/[0.08] bg-white/[0.04] py-3 pl-11 pr-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500/40"
               />
             </div>
           </div>
@@ -167,7 +167,7 @@ export default function Groups() {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Members</label>
-                  <button type="button" onClick={() => setMembers([...members, { name: "", upiId: "" }])} className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold transition">+ Add member</button>
+                  <button type="button" onClick={() => setMembers([...members, { name: "", upiId: "" }])} className="text-xs text-teal-300 hover:text-teal-200 font-semibold transition">+ Add member</button>
                 </div>
                 <div className="space-y-2.5">
                   {members.map((m, i) => (
@@ -175,7 +175,7 @@ export default function Groups() {
                       <input type="text" value={m.name} onChange={(e) => updateMember(i, "name", e.target.value)} placeholder="Name" className={inputCls} />
                       <input type="text" value={m.upiId} onChange={(e) => updateMember(i, "upiId", e.target.value)} placeholder="UPI ID (optional)" className={inputCls} />
                       {members.length > 1 && (
-                        <button type="button" onClick={() => setMembers(members.filter((_, idx) => idx !== i))} className="p-2.5 rounded-xl text-gray-600 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition shrink-0">
+                        <button type="button" onClick={() => setMembers(members.filter((_, idx) => idx !== i))} className="p-2.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition shrink-0">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                       )}
@@ -184,7 +184,7 @@ export default function Groups() {
                 </div>
               </div>
 
-              <button type="submit" disabled={submitting} className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/20">
+              <button type="submit" disabled={submitting} className="w-full primary-action py-2.5">
                 {submitting ? "Creating..." : "Create Group"}
               </button>
             </form>
@@ -196,10 +196,10 @@ export default function Groups() {
             {filteredGroups.map((group) => {
               const total = group.expenses?.reduce((s, e) => s + e.amount, 0) || 0;
               return (
-                <div key={group._id} className="glass-card hover:border-indigo-500/30 rounded-2xl p-5 flex flex-col gap-4 transition-all hover:bg-white/[0.05] group">
+                <div key={group._id} className="glass-card hover:border-teal-500/30 p-5 flex flex-col gap-4 transition-all hover:bg-white/[0.05] group">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold text-base shrink-0 shadow-lg shadow-indigo-500/25">
+                      <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-teal-500 to-orange-500 flex items-center justify-center text-white font-bold text-base shrink-0 shadow-lg shadow-teal-950/30">
                         {group.name[0].toUpperCase()}
                       </div>
                       <div>
@@ -210,35 +210,35 @@ export default function Groups() {
                         }
                       </div>
                     </div>
-                    <button onClick={() => handleDelete(group._id)} className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-gray-700 hover:text-red-400 hover:bg-red-500/10 transition">
+                    <button onClick={() => handleDelete(group._id)} className="opacity-0 group-hover:opacity-100 p-1.5 rounded-md text-gray-700 hover:text-red-400 hover:bg-red-500/10 transition">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                     </button>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="flex-1 bg-white/[0.04] border border-white/[0.06] rounded-xl px-3 py-2 text-center">
+                    <div className="flex-1 bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-center">
                       <p className="text-white font-bold text-sm">{group.expenses.length}</p>
                       <p className="text-gray-600 text-[11px]">expenses</p>
                     </div>
-                    <div className="flex-1 bg-white/[0.04] border border-white/[0.06] rounded-xl px-3 py-2 text-center">
+                    <div className="flex-1 bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-center">
                       <p className="text-white font-bold text-sm">{group.members.length}</p>
                       <p className="text-gray-600 text-[11px]">members</p>
                     </div>
-                    <div className="flex-1 bg-indigo-500/10 border border-indigo-500/20 rounded-xl px-3 py-2 text-center">
-                      <p className="text-indigo-400 font-bold text-sm">₹{total > 0 ? total.toLocaleString() : "0"}</p>
-                      <p className="text-indigo-600 text-[11px]">total</p>
+                    <div className="flex-1 bg-teal-500/10 border border-teal-500/20 rounded-lg px-3 py-2 text-center">
+                      <p className="text-teal-300 font-bold text-sm">₹{total > 0 ? total.toLocaleString() : "0"}</p>
+                      <p className="text-teal-700 text-[11px]">total</p>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="flex -space-x-2">
                       {group.members.slice(0, 6).map((m, i) => (
-                        <div key={i} title={m.name} className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 border-2 border-[#080a10] flex items-center justify-center text-white text-[10px] font-bold">
+                        <div key={i} title={m.name} className="w-7 h-7 rounded-md bg-gradient-to-br from-teal-500 to-orange-500 border-2 border-[#070908] flex items-center justify-center text-white text-[10px] font-bold">
                           {m.name[0].toUpperCase()}
                         </div>
                       ))}
                       {group.members.length > 6 && (
-                        <div className="w-7 h-7 rounded-full bg-white/[0.08] border-2 border-[#080a10] flex items-center justify-center text-gray-400 text-[10px] font-bold">
+                        <div className="w-7 h-7 rounded-md bg-white/[0.08] border-2 border-[#070908] flex items-center justify-center text-gray-400 text-[10px] font-bold">
                           +{group.members.length - 6}
                         </div>
                       )}
@@ -248,7 +248,7 @@ export default function Groups() {
 
                   <button
                     onClick={() => setSelected(group)}
-                    className="w-full flex items-center justify-center gap-2 bg-white/[0.05] hover:bg-indigo-600 border border-white/[0.1] hover:border-indigo-500 text-gray-300 hover:text-white py-2.5 rounded-xl text-sm font-semibold transition-all"
+                    className="w-full flex items-center justify-center gap-2 bg-white/[0.05] hover:bg-teal-600 border border-white/[0.1] hover:border-teal-500 text-gray-300 hover:text-white py-2.5 rounded-lg text-sm font-semibold transition-all"
                   >
                     Open Group
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
@@ -259,7 +259,7 @@ export default function Groups() {
           </div>
         ) : (
           <div className="glass-card flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/[0.07] flex items-center justify-center mb-4">
+            <div className="w-16 h-16 rounded-lg bg-white/[0.04] border border-white/[0.07] flex items-center justify-center mb-4">
               <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
