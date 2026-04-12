@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import Navbar from "../layout/Navbar";
 import api from "../../utils/api";
 
 const initialForm = { description: "", amount: "", paidBy: [], splitBetween: [] };
 
-const inputCls = "w-full bg-white/[0.05] border border-white/[0.1] text-white placeholder-gray-600 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 transition-all";
+const inputCls = "w-full bg-white/[0.05] border border-white/[0.1] text-white placeholder-gray-600 px-4 py-2.5 rounded-lg text-sm focus:outline-none focus:border-teal-500/60 focus:ring-2 focus:ring-teal-500/20 transition-all";
 
 export default function GroupDetail({ group, onBack }) {
   const [detail, setDetail] = useState(null);
@@ -15,9 +15,7 @@ export default function GroupDetail({ group, onBack }) {
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState(initialForm);
 
-  useEffect(() => { loadAll(); }, [group._id]);
-
-  const loadAll = async () => {
+  const loadAll = useCallback(async () => {
     try {
       const [{ data: g }, { data: s }, { data: b }] = await Promise.all([
         api.get(`/groups/${group._id}`),
@@ -26,7 +24,9 @@ export default function GroupDetail({ group, onBack }) {
       ]);
       setDetail(g); setSettlements(s); setBalances(b);
     } catch { toast.error("Failed to load group"); }
-  };
+  }, [group._id]);
+
+  useEffect(() => { loadAll(); }, [loadAll]);
 
   const handleAddExpense = async (e) => {
     e.preventDefault();
@@ -54,9 +54,9 @@ export default function GroupDetail({ group, onBack }) {
   const toggleAll = (field, all) => setForm((f) => ({ ...f, [field]: f[field].length === all.length ? [] : all }));
 
   if (!detail) return (
-    <div className="min-h-screen bg-[#080a10] flex items-center justify-center">
+    <div className="min-h-screen bg-[#070908] flex items-center justify-center">
       <div className="flex flex-col items-center gap-3">
-        <div className="w-9 h-9 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+        <div className="w-9 h-9 rounded-full border-2 border-teal-500 border-t-transparent animate-spin" />
         <p className="text-gray-500 text-sm">Loading group...</p>
       </div>
     </div>
@@ -66,13 +66,13 @@ export default function GroupDetail({ group, onBack }) {
   const totalSpend = detail.expenses.reduce((s, e) => s + e.amount, 0);
 
   return (
-    <div className="min-h-screen bg-[#080a10]">
+    <div className="app-shell">
       <Navbar />
-      <div className="max-w-screen-xl mx-auto px-5 sm:px-8 py-8">
+      <div className="page-wrap">
 
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <button onClick={onBack} className="flex items-center gap-1.5 text-gray-500 hover:text-white transition text-sm font-medium px-3 py-2 rounded-xl hover:bg-white/[0.06] border border-transparent hover:border-white/[0.08]">
+          <button onClick={onBack} className="flex items-center gap-1.5 text-gray-500 hover:text-white transition text-sm font-medium px-3 py-2 rounded-lg hover:bg-white/[0.06] border border-transparent hover:border-white/[0.08]">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             Back
           </button>
@@ -84,7 +84,7 @@ export default function GroupDetail({ group, onBack }) {
           {totalSpend > 0 && (
             <div className="hidden sm:block text-right shrink-0">
               <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Total Spend</p>
-              <p className="text-2xl font-bold text-indigo-400 tracking-tight">₹{totalSpend.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-teal-300 tracking-tight">₹{totalSpend.toLocaleString()}</p>
             </div>
           )}
         </div>
@@ -94,7 +94,7 @@ export default function GroupDetail({ group, onBack }) {
           <div className="lg:col-span-2 space-y-4">
 
             {/* Add expense card */}
-            <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl overflow-hidden">
+            <div className="glass-card overflow-hidden">
               <div className="flex items-center justify-between px-5 py-4">
                 <div>
                   <h2 className="text-white font-semibold text-sm">Expenses</h2>
@@ -102,10 +102,10 @@ export default function GroupDetail({ group, onBack }) {
                 </div>
                 <button
                   onClick={() => { setShowForm((v) => !v); setForm(initialForm); }}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                  className={`flex items-center gap-2 text-sm font-semibold transition-all ${
                     showForm
-                      ? "bg-white/[0.06] border border-white/[0.1] text-gray-300"
-                      : "bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-md shadow-indigo-600/25"
+                      ? "secondary-action px-3.5 py-2"
+                      : "primary-action px-3.5 py-2"
                   }`}
                 >
                   {showForm
@@ -133,9 +133,9 @@ export default function GroupDetail({ group, onBack }) {
                       <div className="flex items-center justify-between mb-2.5">
                         <label className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
                           {label}
-                          {form[field].length > 0 && <span className="ml-2 text-indigo-400 normal-case font-normal">({form[field].length} selected)</span>}
+                          {form[field].length > 0 && <span className="ml-2 text-teal-300 normal-case font-normal">({form[field].length} selected)</span>}
                         </label>
-                        <button type="button" onClick={() => toggleAll(field, allNames)} className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold transition">
+                        <button type="button" onClick={() => toggleAll(field, allNames)} className="text-xs text-teal-300 hover:text-teal-200 font-semibold transition">
                           {form[field].length === allNames.length ? "Deselect all" : "Select all"}
                         </button>
                       </div>
@@ -144,8 +144,8 @@ export default function GroupDetail({ group, onBack }) {
                           const sel = form[field].includes(m.name);
                           return (
                             <button key={m._id} type="button" onClick={() => toggle(field, m.name, !sel)}
-                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all border ${
-                                sel ? "bg-indigo-600/20 border-indigo-500/40 text-indigo-300" : "bg-white/[0.04] border-white/[0.08] text-gray-400 hover:border-white/[0.15] hover:text-gray-300"
+                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all border ${
+                                sel ? "bg-teal-600/20 border-teal-500/40 text-teal-300" : "bg-white/[0.04] border-white/[0.08] text-gray-400 hover:border-white/[0.15] hover:text-gray-300"
                               }`}
                             >
                               {sel && <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>}
@@ -157,7 +157,7 @@ export default function GroupDetail({ group, onBack }) {
                     </div>
                   ))}
 
-                  <button type="submit" disabled={submitting} className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/20">
+                  <button type="submit" disabled={submitting} className="w-full primary-action py-2.5">
                     {submitting ? "Adding..." : "Add Expense"}
                   </button>
                 </form>
@@ -166,11 +166,11 @@ export default function GroupDetail({ group, onBack }) {
 
             {/* Expense list */}
             {detail.expenses.length > 0 ? (
-              <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl overflow-hidden">
+              <div className="glass-card overflow-hidden">
                 <div className="divide-y divide-white/[0.05]">
                   {detail.expenses.map((exp, i) => (
                     <div key={exp._id} className="flex items-center gap-4 px-5 py-4 hover:bg-white/[0.02] transition group">
-                      <div className="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-xs font-bold shrink-0">
+                      <div className="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-300 text-xs font-bold shrink-0">
                         {i + 1}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -189,8 +189,8 @@ export default function GroupDetail({ group, onBack }) {
                 </div>
               </div>
             ) : (
-              <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl flex flex-col items-center justify-center py-14 text-center">
-                <div className="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/[0.07] flex items-center justify-center mb-3">
+              <div className="glass-card flex flex-col items-center justify-center py-14 text-center">
+                <div className="w-12 h-12 rounded-lg bg-white/[0.04] border border-white/[0.07] flex items-center justify-center mb-3">
                   <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" /></svg>
                 </div>
                 <p className="text-gray-400 font-medium text-sm">No expenses yet</p>
@@ -204,13 +204,13 @@ export default function GroupDetail({ group, onBack }) {
 
             {/* Member balances */}
             {balances.length > 0 && (
-              <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-5">
+              <div className="glass-card p-5">
                 <h2 className="text-white font-semibold text-sm mb-4">Balances</h2>
                 <div className="space-y-2.5">
                   {balances.map((b) => (
                     <div key={b.name} className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+                        <div className="w-7 h-7 rounded-md bg-gradient-to-br from-teal-500 to-orange-500 flex items-center justify-center text-white text-[11px] font-bold shrink-0">
                           {b.name[0].toUpperCase()}
                         </div>
                         <span className="text-gray-300 text-sm font-medium">{b.name}</span>
@@ -227,15 +227,15 @@ export default function GroupDetail({ group, onBack }) {
             )}
 
             {/* Members */}
-            <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-5">
+            <div className="glass-card p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-white font-semibold text-sm">Members</h2>
-                <span className="text-xs font-semibold text-gray-500 bg-white/[0.06] border border-white/[0.08] px-2 py-0.5 rounded-full">{detail.members.length}</span>
+                <span className="text-xs font-semibold text-gray-500 bg-white/[0.06] border border-white/[0.08] px-2 py-0.5 rounded-md">{detail.members.length}</span>
               </div>
               <div className="space-y-2.5">
                 {detail.members.map((m) => (
                   <div key={m._id} className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-md shadow-indigo-500/20">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-orange-500 flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-md shadow-teal-950/30">
                       {m.name?.[0]?.toUpperCase() || "?"}
                     </div>
                     <div className="min-w-0">
@@ -248,7 +248,7 @@ export default function GroupDetail({ group, onBack }) {
             </div>
 
             {/* Settlements */}
-            <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-5">
+            <div className="glass-card p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-white font-semibold text-sm">Settlements</h2>
                 {settlements.length > 0
@@ -260,7 +260,7 @@ export default function GroupDetail({ group, onBack }) {
               {settlements.length > 0 ? (
                 <div className="space-y-3">
                   {settlements.map((s) => (
-                    <div key={`${s.from}-${s.to}`} className="bg-white/[0.03] border border-white/[0.07] rounded-xl p-3.5">
+                    <div key={`${s.from}-${s.to}`} className="bg-white/[0.03] border border-white/[0.07] rounded-lg p-3.5">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2 text-sm min-w-0">
                           <span className="text-red-400 font-semibold truncate max-w-[65px]">{s.from}</span>
@@ -272,7 +272,7 @@ export default function GroupDetail({ group, onBack }) {
                       <div className="flex gap-2">
                         {s.upiId && (
                           <a href={`upi://pay?pa=${s.upiId}&pn=${s.to}&am=${s.amount}&cu=INR`}
-                            className="flex-1 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/25 text-indigo-300 py-2 rounded-lg text-xs text-center font-semibold transition">
+                            className="flex-1 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/25 text-teal-300 py-2 rounded-lg text-xs text-center font-semibold transition">
                             Pay UPI
                           </a>
                         )}
@@ -286,7 +286,7 @@ export default function GroupDetail({ group, onBack }) {
                 </div>
               ) : (
                 <div className="flex flex-col items-center py-8 text-center">
-                  <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-3">
+                  <div className="w-11 h-11 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-3">
                     <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                   </div>
                   <p className="text-gray-300 font-medium text-sm">All settled up!</p>
