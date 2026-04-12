@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import toast from "react-hot-toast";
 
 export default function Register() {
@@ -25,20 +25,17 @@ export default function Register() {
     }
   };
 
-  const inputCls = "w-full bg-white/[0.05] border border-white/[0.1] text-white placeholder-gray-600 px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-indigo-500/70 focus:bg-white/[0.07] focus:ring-2 focus:ring-indigo-500/20 transition-all";
+  const inputCls = "w-full bg-white/[0.05] border border-white/[0.1] text-white placeholder-gray-600 px-4 py-3 rounded-lg text-sm focus:outline-none focus:border-teal-500/70 focus:bg-white/[0.07] focus:ring-2 focus:ring-teal-500/20 transition-all";
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-8 relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute left-[12%] top-[12%] h-56 w-56 rounded-full bg-cyan-500/10 blur-[100px]" />
-        <div className="absolute right-[12%] top-[18%] h-72 w-72 rounded-full bg-violet-600/12 blur-[120px]" />
-        <div className="absolute bottom-[6%] left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-indigo-500/10 blur-[120px]" />
+      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:72px_72px] [mask-image:linear-gradient(to_bottom,black,transparent_82%)]">
       </div>
 
       <div className="relative w-full max-w-5xl grid lg:grid-cols-[1.05fr_0.95fr] gap-6 items-stretch">
         <section className="hero-panel hidden lg:flex flex-col justify-between p-8 xl:p-10">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-indigo-400/20 bg-indigo-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-indigo-200">
+            <div className="inline-flex items-center gap-2 rounded-md border border-teal-400/20 bg-teal-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-teal-200">
               New Workspace
             </div>
             <h1 className="mt-6 max-w-lg text-4xl font-bold tracking-tight text-white xl:text-5xl">
@@ -56,7 +53,7 @@ export default function Register() {
               "Keep upcoming renewals and total spend visible at a glance",
             ].map((item) => (
               <div key={item} className="glass-card flex items-center gap-3 p-4 text-sm text-gray-200">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] text-cyan-300">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white/[0.06] text-teal-300">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
@@ -69,7 +66,7 @@ export default function Register() {
 
         <div className="glass-card p-8 sm:p-10">
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-400 via-indigo-500 to-violet-600 flex items-center justify-center shadow-xl shadow-indigo-500/30">
+            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-teal-400 via-emerald-500 to-orange-500 flex items-center justify-center shadow-xl shadow-teal-950/40">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -93,7 +90,7 @@ export default function Register() {
             ))}
             <button
               type="submit" disabled={loading}
-              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-50 text-white font-semibold py-3 rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/25 mt-1"
+              className="w-full primary-action mt-1"
             >
               {loading
                 ? <span className="flex items-center justify-center gap-2"><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Creating account...</span>
@@ -104,7 +101,7 @@ export default function Register() {
 
           <p className="text-center text-gray-500 text-sm mt-7 pt-6 border-t border-white/[0.06]">
             Already have an account?{" "}
-            <Link to="/login" className="text-indigo-400 hover:text-indigo-300 font-semibold transition">Sign in</Link>
+            <Link to="/login" className="text-teal-300 hover:text-teal-200 font-semibold transition">Sign in</Link>
           </p>
         </div>
       </div>
