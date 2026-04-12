@@ -1,20 +1,25 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { useState } from "react";
 import api from "../utils/api";
+import { AuthContext } from "./useAuth";
 
-const AuthContext = createContext();
+const getStoredUser = () => {
+  const token = localStorage.getItem("token");
+  const savedUser = localStorage.getItem("user");
+
+  if (!token || !savedUser) return null;
+
+  try {
+    return JSON.parse(savedUser);
+  } catch {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    return null;
+  }
+};
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const savedUser = localStorage.getItem("user");
-    if (token && savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
-  }, []);
+  const [user, setUser] = useState(getStoredUser);
+  const loading = false;
 
   const login = async (email, password) => {
     const { data } = await api.post("/auth/login", { email, password });
@@ -44,5 +49,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);
