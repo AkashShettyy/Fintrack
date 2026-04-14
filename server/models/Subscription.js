@@ -15,10 +15,13 @@ const subscriptionSchema = new mongoose.Schema(
     amount: {
       type: Number,
       required: [true, "Amount is required"],
+      min: [0.01, "Amount must be greater than 0"],
     },
     currency: {
       type: String,
       default: "INR",
+      trim: true,
+      uppercase: true,
     },
     category: {
       type: String,

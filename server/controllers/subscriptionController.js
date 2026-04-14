@@ -1,21 +1,75 @@
 const Subscription = require("../models/Subscription");
 
+const ALLOWED_SUBSCRIPTION_FIELDS = [
+  "name",
+  "amount",
+  "currency",
+  "category",
+  "billingCycle",
+  "renewalDate",
+  "status",
+  "notes",
+];
+
+const buildSubscriptionPayload = (body) =>
+  ALLOWED_SUBSCRIPTION_FIELDS.reduce((payload, field) => {
+    if (body[field] === undefined) return payload;
+
+    if (field === "name" || field === "notes" || field === "currency") {
+      payload[field] = body[field]?.trim?.() || "";
+      return payload;
+    }
+
+    if (field === "amount") {
+      payload[field] = Number(body[field]);
+      return payload;
+    }
+
+    payload[field] = body[field];
+    return payload;
+  }, {});
+
+const validateSubscriptionPayload = (payload, { requireFields = false } = {}) => {
+  if (requireFields || payload.name !== undefined) {
+    if (!payload.name) return "Name is required";
+  }
+
+  if (requireFields || payload.amount !== undefined) {
+    if (!Number.isFinite(payload.amount) || payload.amount <= 0) return "Amount must be greater than 0";
+  }
+
+  if (requireFields || payload.renewalDate !== undefined) {
+    if (!payload.renewalDate) return "Renewal date is required";
+  }
+
+  return null;
+};
+
+const sendSubscriptionError = (res, error) => {
+  if (error.name === "ValidationError") {
+    return res.status(400).json({ message: error.message });
+  }
+
+  return res.status(500).json({ message: error.message });
+};
+
 // @route  POST /api/subscriptions
 const addSubscription = async (req, res) => {
   try {
-    const { name, amount, currency, category, billingCycle, renewalDate, status, notes } = req.body;
+    const payload = buildSubscriptionPayload(req.body);
+    const validationError = validateSubscriptionPayload(payload, { requireFields: true });
 
-    if (!name?.trim()) return res.status(400).json({ message: "Name is required" });
-    if (!amount || Number(amount) <= 0) return res.status(400).json({ message: "Amount must be greater than 0" });
-    if (!renewalDate) return res.status(400).json({ message: "Renewal date is required" });
+    if (validationError) {
+      return res.status(400).json({ message: validationError });
+    }
 
     const subscription = await Subscription.create({
-      user: req.user._id, name: name.trim(), amount: Number(amount),
-      currency, category, billingCycle, renewalDate, status, notes: notes?.trim() || "",
+      user: req.user._id,
+      ...payload,
     });
     res.status(201).json(subscription);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    sendSubscriptionError(res, error);
   }
 };
 
@@ -46,7 +100,7 @@ const getSubscriptions = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    sendSubscriptionError(res, error);
   }
 };
 
@@ -64,15 +118,26 @@ const updateSubscription = async (req, res) => {
       return res.status(401).json({ message: "Not authorized" });
     }
 
+    const payload = buildSubscriptionPayload(req.body);
+    const validationError = validateSubscriptionPayload(payload);
+
+    if (validationError) {
+      return res.status(400).json({ message: validationError });
+    }
+
+    if (!Object.keys(payload).length) {
+      return res.status(400).json({ message: "No valid subscription fields provided" });
+    }
+
     const updated = await Subscription.findByIdAndUpdate(
       req.params.id,
-      req.body,
-      { returnDocument: "after" },
+      payload,
+      { returnDocument: "after", runValidators: true },
     );
 
     res.json(updated);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    sendSubscriptionError(res, error);
   }
 };
 
