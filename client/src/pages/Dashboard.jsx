@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import api from "../utils/api";
+import { daysUntil } from "../utils/dates";
 import toast from "react-hot-toast";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
@@ -44,8 +45,9 @@ export default function Dashboard() {
   const chartData = subscriptions.filter((s) => s.status === "active").map((s) => ({ name: s.name, value: s.amount }));
   const activeCount = subscriptions.filter((s) => s.status === "active").length;
   const nextRenewals = subscriptions
-    .filter((s) => s.status === "active" && s.renewalDate)
-    .sort((a, b) => new Date(a.renewalDate) - new Date(b.renewalDate))
+    .map((s) => ({ ...s, daysToRenewal: daysUntil(s.renewalDate) }))
+    .filter((s) => s.status === "active" && s.daysToRenewal !== null && s.daysToRenewal >= 0)
+    .sort((a, b) => a.daysToRenewal - b.daysToRenewal)
     .slice(0, 4);
   const topSubscriptions = [...subscriptions]
     .filter((s) => s.status === "active")

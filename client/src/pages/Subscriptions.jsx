@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/layout/Navbar";
 import api from "../utils/api";
+import { daysUntil } from "../utils/dates";
 import toast from "react-hot-toast";
 
 const CATEGORIES = ["Entertainment", "Productivity", "Health", "Education", "Other"];
@@ -26,14 +27,11 @@ const CAT_GRADIENT = {
 const inputCls = "w-full bg-white/[0.05] border border-white/[0.1] text-white placeholder-gray-600 px-4 py-2.5 rounded-lg text-sm focus:outline-none focus:border-teal-500/60 focus:ring-2 focus:ring-teal-500/20 transition-all";
 const selectCls = "w-full bg-white/[0.05] border border-white/[0.1] text-white px-4 py-2.5 rounded-lg text-sm focus:outline-none focus:border-teal-500/60 focus:ring-2 focus:ring-teal-500/20 transition-all";
 
-const daysUntil = (dateStr) => {
-  const diff = Math.ceil((new Date(dateStr) - new Date()) / (1000 * 60 * 60 * 24));
-  return diff;
-};
-
 const RenewalBadge = ({ date }) => {
   const days = daysUntil(date);
+  if (days === null) return <span className="text-xs text-gray-600">No date</span>;
   if (days < 0) return <span className="text-xs text-gray-600">Overdue</span>;
+  if (days === 0) return <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-red-500/10 text-red-400 border border-red-500/20">today</span>;
   if (days <= 3) return <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-red-500/10 text-red-400 border border-red-500/20">in {days}d</span>;
   if (days <= 7) return <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">in {days}d</span>;
   return <span className="text-gray-500 text-xs">{new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "2-digit" })}</span>;
@@ -97,9 +95,13 @@ export default function Subscriptions() {
   const activeCount = subscriptions.filter((sub) => sub.status === "active").length;
   const pausedCount = subscriptions.filter((sub) => sub.status === "paused").length;
   const averageActiveCost = activeCount ? Math.round((summary.monthlyTotal || 0) / activeCount) : 0;
+  const activeRenewals = subscriptions
+    .filter((sub) => sub.status === "active")
+    .map((sub) => ({ ...sub, daysToRenewal: daysUntil(sub.renewalDate) }))
+    .filter((sub) => sub.daysToRenewal !== null);
   const renewalBuckets = {
-    urgent: subscriptions.filter((sub) => sub.status === "active" && daysUntil(sub.renewalDate) <= 3 && daysUntil(sub.renewalDate) >= 0).length,
-    soon: subscriptions.filter((sub) => sub.status === "active" && daysUntil(sub.renewalDate) > 3 && daysUntil(sub.renewalDate) <= 7).length,
+    urgent: activeRenewals.filter((sub) => sub.daysToRenewal <= 3 && sub.daysToRenewal >= 0).length,
+    soon: activeRenewals.filter((sub) => sub.daysToRenewal > 3 && sub.daysToRenewal <= 7).length,
   };
   const filteredSubscriptions = subscriptions
     .filter((sub) => {
