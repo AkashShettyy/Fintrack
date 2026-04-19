@@ -156,6 +156,14 @@
     @apply rounded-md border border-white/[0.08] bg-white/[0.04] px-4 py-3;
   }
 
+  .insight-chip {
+    @apply inline-flex items-center gap-2 rounded-md border border-white/[0.08] bg-white/[0.045] px-3 py-1.5 text-xs font-medium text-gray-300;
+  }
+
+  .ghost-action {
+    @apply rounded-lg border border-white/[0.09] bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-gray-300 transition hover:border-teal-400/25 hover:bg-teal-400/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/35;
+  }
+
   .primary-action {
     @apply rounded-lg bg-gradient-to-r from-teal-500 to-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-950/30 transition hover:from-teal-400 hover:to-orange-400 disabled:opacity-50;
   }
