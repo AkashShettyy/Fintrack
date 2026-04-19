@@ -64,6 +64,8 @@ export default function GroupDetail({ group, onBack }) {
 
   const allNames = detail.members.map((m) => m.name);
   const totalSpend = detail.expenses.reduce((s, e) => s + e.amount, 0);
+  const averageExpense = detail.expenses.length ? Math.round(totalSpend / detail.expenses.length) : 0;
+  const pendingTotal = settlements.reduce((sum, settlement) => sum + Number(settlement.amount || 0), 0);
 
   return (
     <div className="app-shell">
@@ -71,22 +73,35 @@ export default function GroupDetail({ group, onBack }) {
       <div className="page-wrap">
 
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <button onClick={onBack} className="flex items-center gap-1.5 text-gray-500 hover:text-white transition text-sm font-medium px-3 py-2 rounded-lg hover:bg-white/[0.06] border border-transparent hover:border-white/[0.08]">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-            Back
-          </button>
-          <div className="w-px h-5 bg-white/[0.08]" />
-          <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-bold text-white tracking-tight truncate">{detail.name}</h1>
-            {detail.description && <p className="text-gray-500 text-sm mt-0.5">{detail.description}</p>}
-          </div>
-          {totalSpend > 0 && (
-            <div className="hidden sm:block text-right shrink-0">
-              <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Total Spend</p>
-              <p className="text-2xl font-bold text-teal-300 tracking-tight">₹{totalSpend.toLocaleString()}</p>
+        <div className="hero-panel mb-6 p-5 sm:p-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-center gap-4 min-w-0">
+              <button onClick={onBack} className="flex items-center gap-1.5 text-gray-500 hover:text-white transition text-sm font-medium px-3 py-2 rounded-lg hover:bg-white/[0.06] border border-transparent hover:border-white/[0.08]">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                Back
+              </button>
+              <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-orange-500 text-base font-bold text-white shadow-lg shadow-teal-950/30 sm:flex">
+                {detail.name[0].toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="section-label text-teal-300">Group Workspace</p>
+                <h1 className="mt-2 text-2xl font-bold text-white tracking-tight truncate">{detail.name}</h1>
+                {detail.description && <p className="text-gray-500 text-sm mt-1 truncate">{detail.description}</p>}
+              </div>
             </div>
-          )}
+            <div className="grid grid-cols-3 gap-3 sm:min-w-[430px]">
+              {[
+                { label: "Total", value: `₹${totalSpend.toLocaleString()}`, tone: "text-teal-300" },
+                { label: "Average", value: `₹${averageExpense.toLocaleString()}`, tone: "text-emerald-300" },
+                { label: "Pending", value: `₹${pendingTotal.toLocaleString()}`, tone: "text-orange-300" },
+              ].map(({ label, value, tone }) => (
+                <div key={label} className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-3 text-center">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-500">{label}</p>
+                  <p className={`mt-2 text-sm font-bold sm:text-base ${tone}`}>{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
