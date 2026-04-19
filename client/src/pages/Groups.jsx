@@ -71,6 +71,7 @@ export default function Groups() {
       group.members.some((member) => member.name.toLowerCase().includes(search))
     );
   });
+  const busiestGroup = [...groups].sort((a, b) => b.expenses.length - a.expenses.length)[0];
 
   return (
     <div className="app-shell">
@@ -85,8 +86,11 @@ export default function Groups() {
                 Organize group spending, keep member lists visible, and open settlements from a cleaner workspace.
               </p>
               <div className="mt-4 flex flex-wrap gap-2 text-xs text-gray-400">
-                <span className="rounded-md border border-teal-400/15 bg-teal-400/10 px-3 py-1.5 text-teal-200">{totalMembers} members tracked</span>
-                <span className="rounded-md border border-orange-400/15 bg-orange-400/10 px-3 py-1.5 text-orange-200">₹{totalSpend.toLocaleString()} logged</span>
+                <span className="insight-chip border-teal-400/15 bg-teal-400/10 text-teal-200">{totalMembers} members tracked</span>
+                <span className="insight-chip border-orange-400/15 bg-orange-400/10 text-orange-200">₹{totalSpend.toLocaleString()} logged</span>
+                {busiestGroup && (
+                  <span className="insight-chip">Most active: {busiestGroup.name}</span>
+                )}
               </div>
             </div>
             <button
@@ -123,6 +127,10 @@ export default function Groups() {
             <p className="mt-3 text-sm leading-6 text-gray-300">
               Keep descriptions short and member names clear so settlement views stay readable when group activity grows.
             </p>
+            <div className="mt-4 rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-gray-600">Visible now</p>
+              <p className="mt-1 text-sm font-semibold text-white">{filteredGroups.length} of {groups.length} groups</p>
+            </div>
           </div>
         </div>
 
@@ -273,6 +281,13 @@ export default function Groups() {
           <div className="glass-card mt-6 flex flex-col items-center justify-center py-16 text-center">
             <p className="text-base font-semibold text-white">No matching groups</p>
             <p className="mt-2 text-sm text-gray-500">Try a different group name or search for a member instead.</p>
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              className="mt-5 ghost-action"
+            >
+              Clear search
+            </button>
           </div>
         )}
       </div>
