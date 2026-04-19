@@ -69,6 +69,15 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center gap-2 rounded-md border border-orange-400/20 bg-orange-400/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">
             {currentSection}
           </div>
+          <Link
+            to="/subscriptions"
+            className="hidden xl:flex items-center gap-2 rounded-md border border-teal-400/20 bg-teal-400/10 px-3 py-2 text-sm font-semibold text-teal-100 transition hover:bg-teal-400/15 hover:text-white"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Track spend
+          </Link>
           <div className="hidden sm:flex items-center gap-2.5 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-2">
             <div className="w-8 h-8 rounded-md bg-gradient-to-br from-teal-400 via-emerald-500 to-orange-500 flex items-center justify-center text-white text-[11px] font-bold shrink-0 ring-2 ring-white/10">
               {user?.name?.[0]?.toUpperCase()}
@@ -125,6 +134,7 @@ const Navbar = () => {
             const active = pathname === to;
             return (
               <Link key={to} to={to}
+                onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition ${
                   active ? "bg-gradient-to-r from-teal-500 to-orange-500 text-white" : "text-gray-400 hover:text-white hover:bg-white/[0.06]"
                 }`}
@@ -134,6 +144,16 @@ const Navbar = () => {
               </Link>
             );
           })}
+          <Link
+            to="/subscriptions"
+            onClick={() => setMobileOpen(false)}
+            className="mx-2 flex items-center justify-center gap-2 rounded-md border border-teal-400/20 bg-teal-400/10 px-3 py-2.5 text-sm font-semibold text-teal-100"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Track new spend
+          </Link>
           <button onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-red-400 hover:bg-red-500/10 transition"
           >
