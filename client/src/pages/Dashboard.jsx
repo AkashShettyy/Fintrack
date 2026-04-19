@@ -60,6 +60,8 @@ export default function Dashboard() {
   const averageMonthly = activeCount ? Math.round((summary.monthlyTotal || 0) / activeCount) : 0;
   const renewalCoverage = activeCount ? Math.round((nextRenewals.length / activeCount) * 100) : 0;
   const budgetSignal = (summary.monthlyTotal || 0) > 5000 ? "Review soon" : "Controlled";
+  const highestSubscription = topSubscriptions[0];
+  const groupAverage = groups.length ? Math.round(totalGroupSpend / groups.length) : 0;
   const todayLabel = new Date().toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",
@@ -84,25 +86,56 @@ export default function Dashboard() {
                 A live snapshot of your recurring spend, active services, and recent group activity.
               </p>
               <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-gray-400">
-                <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-3 py-1.5">Snapshot for {todayLabel}</span>
-                <span className="rounded-md border border-teal-400/15 bg-teal-400/10 px-3 py-1.5 text-teal-200">
+                <span className="insight-chip">Snapshot for {todayLabel}</span>
+                <span className="insight-chip border-teal-400/15 bg-teal-400/10 text-teal-200">
                   {activeCount} active services monitored
                 </span>
+                {highestSubscription && (
+                  <span className="insight-chip border-orange-400/15 bg-orange-400/10 text-orange-100">
+                    Highest: {highestSubscription.name} at ₹{Number(highestSubscription.amount).toLocaleString()}
+                  </span>
+                )}
               </div>
             </div>
-            <div className="metric-strip sm:min-w-[440px]">
-              {[
-                { label: "Active", value: activeCount },
-                { label: "Groups", value: groups.length },
-                { label: "Signal", value: budgetSignal },
-              ].map(({ label, value }) => (
-                <div key={label} className="metric-strip-item">
-                  <p className="text-[11px] uppercase tracking-[0.18em] text-gray-500">{label}</p>
-                  <p className="mt-2 text-lg font-semibold text-white">{value}</p>
-                </div>
-              ))}
+            <div className="flex flex-col gap-3 sm:min-w-[440px]">
+              <div className="metric-strip">
+                {[
+                  { label: "Active", value: activeCount },
+                  { label: "Groups", value: groups.length },
+                  { label: "Signal", value: budgetSignal },
+                ].map(({ label, value }) => (
+                  <div key={label} className="metric-strip-item">
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-500">{label}</p>
+                    <p className="mt-2 text-lg font-semibold text-white">{value}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <button onClick={() => navigate("/subscriptions")} className="ghost-action">
+                  Manage subscriptions
+                </button>
+                <button onClick={() => navigate("/groups")} className="ghost-action">
+                  Split a bill
+                </button>
+              </div>
             </div>
           </div>
+        </div>
+
+        <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-3">
+          {[
+            { label: "Average Service", value: `₹${averageMonthly.toLocaleString()}`, note: "per active subscription" },
+            { label: "Group Average", value: `₹${groupAverage.toLocaleString()}`, note: "logged per group" },
+            { label: "Renewal Watch", value: `${nextRenewals.length}`, note: "upcoming active renewals" },
+          ].map(({ label, value, note }) => (
+            <div key={label} className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-5 py-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">{label}</p>
+              <div className="mt-2 flex items-end justify-between gap-3">
+                <p className="text-xl font-semibold text-white">{value}</p>
+                <p className="text-right text-xs text-gray-500">{note}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
