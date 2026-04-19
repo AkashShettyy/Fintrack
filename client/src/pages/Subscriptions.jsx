@@ -47,6 +47,7 @@ export default function Subscriptions() {
   const [submitting, setSubmitting] = useState(false);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   useEffect(() => { loadSubscriptions(); }, []);
 
@@ -103,6 +104,10 @@ export default function Subscriptions() {
     urgent: activeRenewals.filter((sub) => sub.daysToRenewal <= 3 && sub.daysToRenewal >= 0).length,
     soon: activeRenewals.filter((sub) => sub.daysToRenewal > 3 && sub.daysToRenewal <= 7).length,
   };
+  const categoryOptions = ["all", ...CATEGORIES.filter((category) => subscriptions.some((sub) => sub.category === category))];
+  const largestMonthly = [...subscriptions]
+    .filter((sub) => sub.status === "active")
+    .sort((a, b) => Number(b.amount) - Number(a.amount))[0];
   const filteredSubscriptions = subscriptions
     .filter((sub) => {
       const matchesQuery =
@@ -111,7 +116,8 @@ export default function Subscriptions() {
         sub.category.toLowerCase().includes(query.toLowerCase()) ||
         (sub.notes || "").toLowerCase().includes(query.toLowerCase());
       const matchesStatus = statusFilter === "all" || sub.status === statusFilter;
-      return matchesQuery && matchesStatus;
+      const matchesCategory = categoryFilter === "all" || sub.category === categoryFilter;
+      return matchesQuery && matchesStatus && matchesCategory;
     })
     .sort((a, b) => new Date(a.renewalDate) - new Date(b.renewalDate));
 
@@ -128,9 +134,14 @@ export default function Subscriptions() {
                 Track renewals, billing cycles, and annualized cost without losing detail on individual services.
               </p>
               <div className="mt-4 flex flex-wrap gap-2 text-xs text-gray-400">
-                <span className="rounded-md border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-red-300">{renewalBuckets.urgent} urgent renewals</span>
-                <span className="rounded-md border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-amber-300">{renewalBuckets.soon} due this week</span>
-                <span className="rounded-md border border-teal-500/20 bg-teal-500/10 px-3 py-1.5 text-teal-200">₹{averageActiveCost.toLocaleString()} average active cost</span>
+                <span className="insight-chip border-red-500/20 bg-red-500/10 text-red-300">{renewalBuckets.urgent} urgent renewals</span>
+                <span className="insight-chip border-amber-500/20 bg-amber-500/10 text-amber-300">{renewalBuckets.soon} due this week</span>
+                <span className="insight-chip border-teal-500/20 bg-teal-500/10 text-teal-200">₹{averageActiveCost.toLocaleString()} average active cost</span>
+                {largestMonthly && (
+                  <span className="insight-chip border-white/[0.08] bg-white/[0.04] text-gray-300">
+                    Top service: {largestMonthly.name}
+                  </span>
+                )}
               </div>
             </div>
             <button
@@ -205,6 +216,25 @@ export default function Subscriptions() {
                     }`}
                   >
                     {status}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {categoryOptions.map((category) => {
+                const active = categoryFilter === category;
+                return (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => setCategoryFilter(category)}
+                    className={`rounded-md border px-3 py-2 text-xs font-semibold transition ${
+                      active
+                        ? "border-orange-400/20 bg-orange-400/10 text-orange-100"
+                        : "border-white/[0.08] bg-white/[0.03] text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    {category}
                   </button>
                 );
               })}
@@ -289,7 +319,7 @@ export default function Subscriptions() {
                 <p className="mt-2 max-w-sm text-sm leading-6 text-gray-500">Clear the current search and status filter to bring the full list back.</p>
                 <button
                   type="button"
-                  onClick={() => { setQuery(""); setStatusFilter("all"); }}
+                  onClick={() => { setQuery(""); setStatusFilter("all"); setCategoryFilter("all"); }}
                   className="mt-5 rounded-lg border border-teal-400/20 bg-teal-400/10 px-4 py-2 text-sm font-semibold text-teal-200 transition hover:bg-teal-400/15 hover:text-white"
                 >
                   Clear filters
