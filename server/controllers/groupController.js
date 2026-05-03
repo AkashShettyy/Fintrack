@@ -79,12 +79,17 @@ const addExpense = async (req, res) => {
     if (error) return res.status(error.status).json({ message: error.message });
 
     const { description, amount, paidBy, splitBetween } = req.body;
+    const numericAmount = Number(amount);
     if (!description?.trim()) return res.status(400).json({ message: "Description is required" });
-    if (!amount || Number(amount) <= 0) return res.status(400).json({ message: "Amount must be greater than 0" });
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) return res.status(400).json({ message: "Amount must be greater than 0" });
     if (!Array.isArray(paidBy) || !paidBy.length) return res.status(400).json({ message: "At least one payer required" });
     if (!Array.isArray(splitBetween) || !splitBetween.length) return res.status(400).json({ message: "Split between cannot be empty" });
 
-    group.expenses.push({ description: description.trim(), amount: Number(amount), paidBy, splitBetween });
+    const memberNames = new Set(group.members.map((member) => member.name));
+    const hasUnknownMember = [...paidBy, ...splitBetween].some((name) => !memberNames.has(name));
+    if (hasUnknownMember) return res.status(400).json({ message: "Expense members must belong to the group" });
+
+    group.expenses.push({ description: description.trim(), amount: numericAmount, paidBy, splitBetween });
     await group.save();
     res.status(201).json(group);
   } catch (error) {
