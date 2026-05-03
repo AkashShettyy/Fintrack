@@ -70,8 +70,8 @@ const deleteGroup = async (req, res) => {
 // @route  POST /api/groups/:id/expenses
 const addExpense = async (req, res) => {
   try {
-    const group = await Group.findById(req.params.id);
-    if (!group) return res.status(404).json({ message: "Group not found" });
+    const { group, error } = await getOwnedGroup(req.params.id, req.user._id);
+    if (error) return res.status(error.status).json({ message: error.message });
 
     const { description, amount, paidBy, splitBetween } = req.body;
     if (!description?.trim()) return res.status(400).json({ message: "Description is required" });
@@ -90,11 +90,8 @@ const addExpense = async (req, res) => {
 // @route  DELETE /api/groups/:id/expenses/:eid
 const deleteExpense = async (req, res) => {
   try {
-    const group = await Group.findById(req.params.id);
-
-    if (!group) {
-      return res.status(404).json({ message: "Group not found" });
-    }
+    const { group, error } = await getOwnedGroup(req.params.id, req.user._id);
+    if (error) return res.status(error.status).json({ message: error.message });
 
     group.expenses = group.expenses.filter(
       (e) => e._id.toString() !== req.params.eid,
