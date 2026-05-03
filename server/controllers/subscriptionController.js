@@ -40,6 +40,7 @@ const validateSubscriptionPayload = (payload, { requireFields = false } = {}) =>
 
   if (requireFields || payload.renewalDate !== undefined) {
     if (!payload.renewalDate) return "Renewal date is required";
+    if (Number.isNaN(new Date(payload.renewalDate).getTime())) return "Renewal date must be valid";
   }
 
   return null;
