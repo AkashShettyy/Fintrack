@@ -108,11 +108,8 @@ const deleteExpense = async (req, res) => {
 // @route  GET /api/groups/:id/settlements
 const getSettlements = async (req, res) => {
   try {
-    const group = await Group.findById(req.params.id);
-
-    if (!group) {
-      return res.status(404).json({ message: "Group not found" });
-    }
+    const { group, error } = await getOwnedGroup(req.params.id, req.user._id);
+    if (error) return res.status(error.status).json({ message: error.message });
 
     // Calculate settlements considering already paid amounts
     const calculated = calculateSettlements(
@@ -140,11 +137,8 @@ const getSettlements = async (req, res) => {
 const markSettled = async (req, res) => {
   try {
     const { from, to, amount } = req.body;
-    const group = await Group.findById(req.params.id);
-
-    if (!group) {
-      return res.status(404).json({ message: "Group not found" });
-    }
+    const { group, error } = await getOwnedGroup(req.params.id, req.user._id);
+    if (error) return res.status(error.status).json({ message: error.message });
 
     // Record the payment
     group.payments.push({ from, to, amount });
@@ -159,8 +153,8 @@ const markSettled = async (req, res) => {
 // @route  GET /api/groups/:id/balances
 const getBalances = async (req, res) => {
   try {
-    const group = await Group.findById(req.params.id);
-    if (!group) return res.status(404).json({ message: "Group not found" });
+    const { group, error } = await getOwnedGroup(req.params.id, req.user._id);
+    if (error) return res.status(error.status).json({ message: error.message });
 
     const balances = {};
     group.members.forEach((m) => { balances[m.name] = 0; });
