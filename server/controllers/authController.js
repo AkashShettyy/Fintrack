@@ -1,6 +1,12 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
+const normalizeAuthInput = ({ name = "", email = "", password = "" }) => ({
+  name: name.trim(),
+  email: email.trim().toLowerCase(),
+  password,
+});
+
 // Generate JWT token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -11,7 +17,11 @@ const generateToken = (id) => {
 // @route  POST /api/auth/register
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password } = normalizeAuthInput(req.body);
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Name, email, and password are required" });
+    }
 
     // Check if user exists
     const userExists = await User.findOne({ email });
@@ -36,7 +46,11 @@ const registerUser = async (req, res) => {
 // @route  POST /api/auth/login
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = normalizeAuthInput(req.body);
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
 
     // Check if user exists
     const user = await User.findOne({ email });
