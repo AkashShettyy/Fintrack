@@ -24,7 +24,14 @@ app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/groups", groupRoutes);
 
 app.get("/", (req, res) => {
-  res.json({ message: "FinTrack API is running 🚀" });
+  res.json({ message: "FinTrack API is running" });
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    uptime: Math.round(process.uptime()),
+  });
 });
 
 const PORT = process.env.PORT || 8000;
