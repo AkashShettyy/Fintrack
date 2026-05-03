@@ -55,8 +55,8 @@ Fintrack/
 
 1. **Clone the repo**
    ```bash
-   git clone https://github.com/your-username/fintrack.git
-   cd fintrack
+   git clone https://github.com/AkashShettyy/Fintrack.git
+   cd Fintrack
    ```
 
 2. **Server**
@@ -66,9 +66,10 @@ Fintrack/
    ```
    Create a `.env` file:
    ```env
-   PORT=5000
+   PORT=8000
    MONGO_URI=your_mongodb_connection_string
    JWT_SECRET=your_jwt_secret
+   CLIENT_URL=http://localhost:5173
    EMAIL_USER=your_email@gmail.com
    EMAIL_PASS=your_app_password
    ```
@@ -83,7 +84,7 @@ Fintrack/
    npm run dev
    ```
 
-App runs at `http://localhost:5173`, API at `http://localhost:5000`.
+App runs at `http://localhost:5173`, API at `http://localhost:8000`.
 
 ## API Routes
 
