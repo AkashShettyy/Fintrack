@@ -23,6 +23,11 @@ const createGroup = async (req, res) => {
       : [];
     if (memberList.length === 0) return res.status(400).json({ message: "At least one member is required" });
 
+    const memberNames = memberList.map((member) => member.name.toLowerCase());
+    if (new Set(memberNames).size !== memberNames.length) {
+      return res.status(400).json({ message: "Member names must be unique" });
+    }
+
     const group = await Group.create({ name: name.trim(), description, createdBy: req.user._id, members: memberList });
     res.status(201).json(group);
   } catch (error) {
