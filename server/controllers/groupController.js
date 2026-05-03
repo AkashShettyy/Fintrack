@@ -1,6 +1,15 @@
 const Group = require("../models/Group");
 const calculateSettlements = require("../utils/calculateSettlements");
 
+const getOwnedGroup = async (id, userId) => {
+  const group = await Group.findById(id);
+  if (!group) return { error: { status: 404, message: "Group not found" } };
+  if (group.createdBy.toString() !== userId.toString()) {
+    return { error: { status: 401, message: "Not authorized" } };
+  }
+  return { group };
+};
+
 // @route  POST /api/groups
 const createGroup = async (req, res) => {
   try {
@@ -36,15 +45,8 @@ const getGroups = async (req, res) => {
 // @route  GET /api/groups/:id
 const getGroup = async (req, res) => {
   try {
-    const group = await Group.findById(req.params.id);
-
-    if (!group) {
-      return res.status(404).json({ message: "Group not found" });
-    }
-
-    if (group.createdBy.toString() !== req.user._id.toString()) {
-      return res.status(401).json({ message: "Not authorized" });
-    }
+    const { group, error } = await getOwnedGroup(req.params.id, req.user._id);
+    if (error) return res.status(error.status).json({ message: error.message });
 
     res.json(group);
   } catch (error) {
@@ -55,15 +57,8 @@ const getGroup = async (req, res) => {
 // @route  DELETE /api/groups/:id
 const deleteGroup = async (req, res) => {
   try {
-    const group = await Group.findById(req.params.id);
-
-    if (!group) {
-      return res.status(404).json({ message: "Group not found" });
-    }
-
-    if (group.createdBy.toString() !== req.user._id.toString()) {
-      return res.status(401).json({ message: "Not authorized" });
-    }
+    const { group, error } = await getOwnedGroup(req.params.id, req.user._id);
+    if (error) return res.status(error.status).json({ message: error.message });
 
     await group.deleteOne();
     res.json({ message: "Group deleted" });
