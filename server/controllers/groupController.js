@@ -147,11 +147,21 @@ const getSettlements = async (req, res) => {
 const markSettled = async (req, res) => {
   try {
     const { from, to, amount } = req.body;
+    const numericAmount = Number(amount);
     const { group, error } = await getOwnedGroup(req.params.id, req.user._id);
     if (error) return res.status(error.status).json({ message: error.message });
 
+    const memberNames = new Set(group.members.map((member) => member.name));
+    if (!memberNames.has(from) || !memberNames.has(to)) {
+      return res.status(400).json({ message: "Settlement members must belong to the group" });
+    }
+
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+      return res.status(400).json({ message: "Settlement amount must be greater than 0" });
+    }
+
     // Record the payment
-    group.payments.push({ from, to, amount });
+    group.payments.push({ from, to, amount: numericAmount });
     await group.save();
 
     res.json({ message: "Payment recorded successfully" });
